@@ -11,7 +11,7 @@ Use the SecSign ID two factor authentication on your Wordpress site to enable ea
 
 == Description ==
 
-SecSign ID – The mobile way to log into web sites
+SecSign ID - The mobile way to log into web sites
 
 * Integrate SecSign ID into your own website or sign into other web sites supporting SecSign ID.
 * Directly sign into [SecSign.com Portal](https://portal.secsign.com) for true professional messaging and cloud sharing.
