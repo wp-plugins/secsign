@@ -1,14 +1,11 @@
 <?php
 /*
-Plugin Name: SecSign ID
+Plugin Name: SecSign
 Version: 1.0
 Description: The plugin allows a user to login using a SecSign ID and their smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
-
-// $Id: secsignid_login.php,v 1.1 2013-05-22 13:20:14 jwollner Exp $
-// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/examples/wordpress/secsign/secsignid_login.php,v $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;

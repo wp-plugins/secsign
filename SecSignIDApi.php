@@ -1,7 +1,4 @@
 <?php
-
-// $Id: SecSignIDApi.php,v 1.15 2013-04-29 10:32:13 titus Exp $
-// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/php/SecSignIDApi.php,v $
     
     define("SCRIPT_REVISION", '$Revision: 1.15 $');
     

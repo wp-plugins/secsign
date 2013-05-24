@@ -1,4 +1,4 @@
-=== SecSign ID ===
+=== SecSign ===
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate
 Requires at least: 3.0.1

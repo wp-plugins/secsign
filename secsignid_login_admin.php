@@ -1,8 +1,5 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.1 2013-05-22 13:20:14 jwollner Exp $
-// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/examples/wordpress/secsign/secsignid_login_admin.php,v $
-
     // for all hooks, see http://adambrown.info/p/wp_hooks
     
     add_action('admin_init', 'secsignid_login_options_init' );
