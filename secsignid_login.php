@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0
+Version: 1.0.1
 Description: The plugin allows a user to login using a SecSign ID and their smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
@@ -694,7 +694,7 @@ Author URI: http://www.secsign.com
             echo "  </tr>" . PHP_EOL;
             echo "  <tr>" . PHP_EOL;
             echo "      <td colspan='2'>" . PHP_EOL;
-            echo "<div style='display:block;background:url(./wp-content/plugins/secsignid_login/accesspass_bg.png) transparent no-repeat scroll left top;background-size: 155px 206px;width: 155px;height: 206px;vertical-align: middle;margin:auto;margin-left:45px;'>" . PHP_EOL;
+            echo "<div style='display:block;background:url(./wp-content/plugins/secsign/accesspass_bg.png) transparent no-repeat scroll left top;background-size: 155px 206px;width: 155px;height: 206px;vertical-align: middle;margin:auto;margin-left:45px;'>" . PHP_EOL;
             echo "<img style='position:relative;width:80px;height:80px;left:35px;top:90px;box-shadow:0px 0px 0px #FFF;' src=\"data:image/png;base64," . $authsession->getIconData() . "\">" . PHP_EOL;
             echo "</div><br /><br />" . PHP_EOL;
             echo "      </td>" . PHP_EOL;

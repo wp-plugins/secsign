@@ -13,46 +13,46 @@ Use the SecSign ID two factor authentication on your Wordpress site to enable ea
 
 SecSign ID - The mobile way to log into web sites
 
-* Integrate SecSign ID into your own website or sign into other web sites supporting SecSign ID.
-* Directly sign into [SecSign.com Portal](https://portal.secsign.com) for true professional messaging and cloud sharing.
+* Integrate SecSign ID into your own Wordpress site in under one minute. (There are also APIs for PHP and Java.)
+* You and your users can also use SecSign ID to visit other web sites securely (e.g. [Portal.SecSign.com](https://portal.secsign.com) for true professional messaging and cloud sharing.)
+* This service is free for users and website owners and free of advertising - no matter how much users you have.
+* You can integrate the SecSign ID as inhouse solution into your existing infrastructure (on request with licensed service and maintenance contract)
 
 SecSign ID features:
 
-* Easy to use
-* Easy to add to your website
+* Quick and easy to use single sign-on with 2048 bit high security
 * Eliminates password chaos and security concerns
-* Free for website owners and users
-* Single sign-on
+* No mobile number, credit card or time-consuming registration required.
 * No need for long cryptical passwords, time-consuming retyping of codes from SMS or reading of QR codes
 * High security and strong cryptography on all levels
 
 Technical details (only for experts):
 
 * Up to 2048 bit asymmetric private keys
-* Brute force resistant private key storage
-* No private key information on SecSign ID authentication servers
+* Brute force resistant private key storage (SafeKey mechanism)
+* Private keys are never transmitted to authentication server
 * High availability through redundant remote failover servers
-* Multi tier secured server structure
+* Multi-tier high security architecture with multiple firewalls and protocol filters.
 
-How to start?
+SecSign ID in Action:
 
-1. Install the app from [SecSign.com](https://www.secsign.com)
+1. Get the app for [iPhone](https://itunes.apple.com/app/secsign/id581467871) or [Android](https://play.google.com/store/apps/details?id=com.secsign.secsignid)
 2. Choose a unique user short name
 3. Choose a short PIN to secure your SecSign ID on your phone
 
-That's it!
+That's it! You can now use your SecSign ID to Sign In.
 
-Now just type in your user short name (for instance at [SecSign.com Portal](https://portal.secsign.com) or your Wordpress site using this plugin), confirm your sign-in on your phone and you are done within seconds.
+How to Sign In:
+
+Now just type in your user short name (for instance at [SecSign Portal](https://portal.secsign.com) or your Wordpress site using this plugin), confirm your sign-in on your phone and you are done within seconds.
 
 Despite its simplicity SecSign ID works with comprehensive strongest security technologies. The solution we offer is unique and does not submit any confidential data through a web browser.
-
-SecSign ID is free for everyone and free of advertising.
 
 We have a strong background of more than 14 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
 
 Visit our official site to get the app and more information: [SecSign.com](https://www.secsign.com)
 
-Or check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
+and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 
 == Installation ==
 
@@ -74,7 +74,7 @@ Or you can go to your profile page to assign a SecSign ID.
 
 = Is this service free? =
 
-Yes, it's free for the user and the Wordpress admin.
+Yes, it's free for the user and the Wordpress admin - no matter how much users you have. It's also free of advertising.
 
 == Screenshots ==
 
@@ -83,6 +83,9 @@ Yes, it's free for the user and the Wordpress admin.
 3. If your SecSign ID is not associated with an Wordpress username, you can create one or assign the SecSign ID to an existing user.
 
 == Changelog ==
+
+= 1.0.1 =
+* bug fix
 
 = 1.0 =
 * initial release
