@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0.1
+Version: 1.0.2
 Description: The plugin allows a user to login using a SecSign ID and their smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
@@ -9,7 +9,7 @@ Author URI: http://www.secsign.com
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
-
+    
     $secsignid_login_text_domain   = "secsign";
     $secsignid_login_plugin_name   = "secsign";
     
@@ -22,7 +22,7 @@ Author URI: http://www.secsign.com
         // this creates a submenu entry and adds options to wordpress database
         include( WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/secsignid_login_admin.php' );
     }
-
+    
     // globals
     global $check_auth_button;
     global $cancel_auth_button;
@@ -87,7 +87,7 @@ Author URI: http://www.secsign.com
         
         global $current_user; // instance of type WP_User: http://codex.wordpress.org/Class_Reference/WP_User
         global $user_ID;
-
+        
         get_currentuserinfo(); // http://codex.wordpress.org/Function_Reference/get_currentuserinfo
         
         // print widget opening tage
@@ -96,7 +96,7 @@ Author URI: http://www.secsign.com
         if($user_ID == 0 || $user_ID == '')
         {
             // no user is logged in
-
+            
             global $error;
             global $login_errors;
             
@@ -112,13 +112,13 @@ Author URI: http://www.secsign.com
             $errors = '';
             $messages = '';
             
-            // snippet got from standard login plugin of wordpress: 
+            // snippet got from standard login plugin of wordpress:
             if($wp_error->get_error_code())
             {
-                foreach ($wp_error->get_error_codes() as $code) 
+                foreach ($wp_error->get_error_codes() as $code)
                 {
                     $severity = $wp_error->get_error_data($code);
-                    foreach ($wp_error->get_error_messages($code) as $error) 
+                    foreach ($wp_error->get_error_messages($code) as $error)
                     {
                         if('message' == $severity)
                             $messages .= '	' . $error . "<br />" . PHP_EOL;
@@ -132,10 +132,10 @@ Author URI: http://www.secsign.com
                     $found_login_errors = true;
                 }
             }
-
+            
             // check if login errors or wordpress error exist
             if(is_wp_error($login_errors) && $login_errors->get_error_code())
-            {    
+            {
                 foreach ($login_errors->get_error_messages() as $error)
                 {
                     $errors .= '  ' . $error . "<br />" . PHP_EOL;
@@ -145,8 +145,8 @@ Author URI: http://www.secsign.com
                 }
             }
             
-            echo $before_title .'<span>'. $widget_name .'</span>' . $after_title;   
-
+            echo $before_title .'<span>'. $widget_name .'</span>' . $after_title;
+            
             global $secsignid_login_no_wp_mapping;
             
             if(isset($secsignid_login_no_wp_mapping))
@@ -156,8 +156,9 @@ Author URI: http://www.secsign.com
                     // print error codes and messages
                     if( !empty($errors))
                     {
+                        echo "<span style='color:#FF0000;'>";
                         print_error($errors);
-                        echo "<br />";
+                        echo "</span><br />";
                     }
                     if( !empty($messages))
                     {
@@ -182,11 +183,11 @@ Author URI: http://www.secsign.com
                                                                    'serviceaddress' => $_POST['serviceaddress'],
                                                                    'authsessionicondata' => $_POST['authsessionicondata']
                                                                    ));
-
+                    
                     $secSignIDApi = get_secsignid_server_instance();
                     
                     global $secsignid_login_auth_session_status;
-                    global $check_auth_button; 
+                    global $check_auth_button;
                     
                     if(isset($_POST[$check_auth_button]))
                     {
@@ -220,8 +221,8 @@ Author URI: http://www.secsign.com
                             }
                         }
                     }
-                    else 
-                    {   
+                    else
+                    {
                         // cancel ticket
                         $secSignIDApi->cancelAuthSession($authsession);
                         
@@ -232,51 +233,56 @@ Author URI: http://www.secsign.com
                 catch(Exception $e)
                 {
                     print_error("An error occured when checking status of ticket: " . $e->getMessage(), true);
-                }   
+                }
             }
             else if((! $found_login_errors) && isset($_POST['secsignid']) && isset($_POST['login']))
             {
                 $secsignid = $_POST['secsignid'];
-                    // show access pass
-                    // contact secsign id server and request auth session
-                    try
-                    {
-                        $secSignIDApi          = get_secsignid_server_instance();
-                        $secsignid_service_name   = get_option('secsignid_service_name');
-                        if(empty($secsignid_service_name)){
-                            $secsignid_service_name = home_url();
-                        }
-                    
-                        // request auth session
-                        $authsession = $secSignIDApi->requestAuthSession($secsignid, $secsignid_service_name, get_option('secsignid_service_name'));
-                    
-                        // got auth session
-                        if(isset($authsession))
-                        {                            
-                            // prints a html-table with the access pass
-                            print_check_accesspass($authsession);                        
-                        }
-                        else
-                        {
-                            print_error("Server sent empty auth session.", true);
-                        }
+                // show access pass
+                // contact secsign id server and request auth session
+                try
+                {
+                    $secSignIDApi          = get_secsignid_server_instance();
+                    $secsignid_service_name   = get_option('secsignid_service_name');
+                    if(empty($secsignid_service_name)){
+                        $secsignid_service_name = home_url();
                     }
-                    catch(Exception $e)
+                    if (strncmp($secsignid_service_name, "https://", 8)== 0)
+                        $secsignid_service_name = substr($secsignid_service_name, 8);
+                    if (strncmp($secsignid_service_name, "http://", 7)== 0)
+                        $secsignid_service_name = substr($secsignid_service_name, 7);
+                    
+                    
+                    // request auth session
+                    $authsession = $secSignIDApi->requestAuthSession($secsignid, $secsignid_service_name, get_option('secsignid_service_name'));
+                    
+                    // got auth session
+                    if(isset($authsession))
                     {
-                        if (strncmp($e->getMessage(), "500",3)==0)
-                        {
-                            print_error("The SecSign ID does not exist. If you don't have a SecSign ID, get the free app from <a href='https://www.secsign.com' target='_blank'>SecSign.com</a> and create a new SecSign ID.",true);
-                        }
-                        else if (strncmp($e->getMessage(), "422",3)==0)
-                        {
-                            print_error(substr($e->getMessage(),5),true);
-                        }
-
-                        else
+                        // prints a html-table with the access pass
+                        print_check_accesspass($authsession);
+                    }
+                    else
+                    {
+                        print_error("Server sent empty auth session.", true);
+                    }
+                }
+                catch(Exception $e)
+                {
+                    if (strncmp($e->getMessage(), "500",3)==0)
+                    {
+                        print_error("The SecSign ID does not exist. If you don't have a SecSign ID, get the free app from <a href='https://www.secsign.com' target='_blank'>SecSign.com</a> and create a new SecSign ID.",true);
+                    }
+                    else if (strncmp($e->getMessage(), "422",3)==0)
+                    {
+                        print_error(substr($e->getMessage(),5),true);
+                    }
+                    
+                    else
                         print_error("An error occured when requesting auth session: " . $e->getMessage() , true);
-                    }
+                }
             }
-            else 
+            else
             {
                 // check if auth session id is set
                 if(isset($_POST['requestid']) && isset($_POST['authsessionid']))
@@ -322,12 +328,12 @@ Author URI: http://www.secsign.com
                 // get post to url. the widget will be called again
                 print_login_form();
             }
-        } 
-        else 
+        }
+        else
         {
             // a user is logged in...
             echo $before_title . "Welcome " . $current_user->user_login . "..." . $after_title;
-
+            
             // show a logout link and redirect to wordpress blog
             $redirectAfterLogoutTo = site_url();
             echo '<a href="' . wp_logout_url($redirectAfterLogoutTo) . '">Logout</a>';
@@ -357,20 +363,20 @@ Author URI: http://www.secsign.com
             if(! is_user_logged_in()) // no user is logged in
             {
                 /**if ($_POST['wp-password'] == '')
-                {
-                    add_error("Please enter a password.");
-                    global $secsignid_login_no_wp_mapping;
-                    $secsignid_login_no_wp_mapping = true;
-                    return;
-                }
-                
-                if ($_POST['wp-email'] == '')
-                {
-                    add_error("Please enter an email address.");
-                    global $secsignid_login_no_wp_mapping;
-                    $secsignid_login_no_wp_mapping = true;
-                    return;
-                }*/
+                 {
+                 add_error("Please enter a password.");
+                 global $secsignid_login_no_wp_mapping;
+                 $secsignid_login_no_wp_mapping = true;
+                 return;
+                 }
+                 
+                 if ($_POST['wp-email'] == '')
+                 {
+                 add_error("Please enter an email address.");
+                 global $secsignid_login_no_wp_mapping;
+                 $secsignid_login_no_wp_mapping = true;
+                 return;
+                 }*/
                 
                 if ( username_exists($_POST['wp-username'])) {
                     add_error("User already exists. Please try another user name or assign your SecSign ID to this user name.");
@@ -380,11 +386,11 @@ Author URI: http://www.secsign.com
                 }
                 
                 /**if (email_exists($_POST['wp-email'])) {
-                    add_error("Email address already exists. Please try another email.");
-                    global $secsignid_login_no_wp_mapping;
-                    $secsignid_login_no_wp_mapping = true;
-                    return;
-                }*/
+                 add_error("Email address already exists. Please try another email.");
+                 global $secsignid_login_no_wp_mapping;
+                 $secsignid_login_no_wp_mapping = true;
+                 return;
+                 }*/
                 
                 //$user_id = wp_create_user($_POST['wp-username'], $_POST['wp-password'], $_POST['wp-email']);
                 
@@ -451,15 +457,15 @@ Author URI: http://www.secsign.com
                     }
                     
                     if ( !user_pass_ok( $_POST['wp-username'], $_POST['wp-password'] ) )
-                        {
+                    {
                         add_error("Wrong Password. Please try again.");
                         global $secsignid_login_no_wp_mapping;
                         $secsignid_login_no_wp_mapping = true;
                         return;
-                        }
+                    }
                     else
                     {
-                    //Assign SecSign ID to WP User
+                        //Assign SecSign ID to WP User
                         $mapping_array = get_user_mappings();
                         // check if mapping already exist to decide whether to call update or insert
                         if($mapping_array[$user->ID])
@@ -473,15 +479,15 @@ Author URI: http://www.secsign.com
                         {
                             insert_user_mapping($user->ID, $user->user_login, $_POST['secsignid']);
                         }
-
-                    // set auth cookie
-                    wp_set_auth_cookie($user->ID, false, is_ssl());
-                    do_action('wp_login', $user->user_login, $user);
-                    
-                    wp_set_current_user($user->ID);
-                    
-                    // safe direct to same domain
-                    wp_safe_redirect(secsign_id_login_post_url());
+                        
+                        // set auth cookie
+                        wp_set_auth_cookie($user->ID, false, is_ssl());
+                        do_action('wp_login', $user->user_login, $user);
+                        
+                        wp_set_current_user($user->ID);
+                        
+                        // safe direct to same domain
+                        wp_safe_redirect(secsign_id_login_post_url());
                     }
                 }
             }
@@ -491,7 +497,7 @@ Author URI: http://www.secsign.com
                 global $secsignid_login_no_wp_mapping;
                 $secsignid_login_no_wp_mapping = true;
                 return;
-
+                
             }
         }
         else if(isset($_POST['requestid']) && isset($_POST['authsessionid']))
@@ -502,7 +508,7 @@ Author URI: http://www.secsign.com
                 global $secsignid_login_auth_session_status;
                 
                 $secsignid_login_auth_session_status = AuthSession::NOSTATE;
-            
+                
                 try
                 {
                     $authsession = new AuthSession();
@@ -514,7 +520,7 @@ Author URI: http://www.secsign.com
                                                                    'serviceaddress' => $_POST['serviceaddress'],
                                                                    'authsessionicondata' => $_POST['authsessionicondata']
                                                                    ));
-            
+                    
                     $secSignIDApi = get_secsignid_server_instance();
                     $secsignid_login_auth_session_status = $secSignIDApi->getAuthSessionState($authsession);
                 }
@@ -525,7 +531,7 @@ Author URI: http://www.secsign.com
                     
                     $secsignid_login_auth_session_status = AuthSession::NOSTATE;
                 }
-
+                
                 if($secsignid_login_auth_session_status == AuthSession::AUTHENTICATED)
                 {
                     // release authentication session. it is not used any more
@@ -545,13 +551,13 @@ Author URI: http://www.secsign.com
                                     // re-create user
                                     $user =  new WP_User($user_data->ID);
                                 }
-                    
+                                
                                 // set auth cookie
                                 wp_set_auth_cookie($user->ID, false, is_ssl()); // http://codex.wordpress.org/Function_Reference/wp_set_auth_cookie
                                 do_action('wp_login', $user->user_login, $user);
-                    
+                                
                                 wp_set_current_user($user->ID);
-                        
+                                
                                 // safe direct to same domain
                                 wp_safe_redirect(secsign_id_login_post_url());
                             }
@@ -600,7 +606,7 @@ Author URI: http://www.secsign.com
         function get_secsignid_server_instance()
         {
             $secSignIDServer = new SecSignIDApi();
-        
+            
             return $secSignIDServer;
         }
     }
@@ -615,7 +621,7 @@ Author URI: http://www.secsign.com
         function print_login_form()
         {
             $form_post_url = secsign_id_login_post_url();
-        
+            
             echo "<form action='" . $form_post_url . "' method='post'>" . PHP_EOL;
             echo "  SecSign ID:<br>" . PHP_EOL;
             echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' style='margin-top:5px;'/>" . PHP_EOL;
@@ -623,7 +629,7 @@ Author URI: http://www.secsign.com
             echo "</form>";
         }
     }
-
+    
     if(! (function_exists('print_wpuser_mapping_form')))
     {
         /**
@@ -644,7 +650,7 @@ Author URI: http://www.secsign.com
             echo "  <center><button style='margin-top:10px;font-size:110%;' type ='submit' name='newaccount' value='1'>Create new account</button></center>" . PHP_EOL;
             echo "</form>";
             echo "<form action='" . $form_post_url . "' method='post'>" . PHP_EOL;
-            echo "  <br><b style='font-size:110%;'><center style='font-size:150%;'>--- or ---</center><br>";//Assign your SecSign ID to an existing account:</b><br>" . PHP_EOL;
+            echo "  <br><center style='font-size:150%;'>--- or ---</center><br>";//Assign your SecSign ID to an existing account:</b><br>" . PHP_EOL;
             echo "  <table><tr><td>Username:&nbsp;</td><td><input id='wp-username' name='wp-username' type='text' size='15' maxlength='30' /></td></tr>" . PHP_EOL;
             echo "  <tr><td>Password:</td><td><input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' /></td></tr></table>" . PHP_EOL;
             echo "<input type='hidden' name='secsignid' value='" . $_POST['secsignid'] . "' />" . PHP_EOL;
@@ -665,15 +671,15 @@ Author URI: http://www.secsign.com
             {
                 throw new Exception("Cannot show access pass, given \$authsession is either null or not an instance of AuthSession.");
             }
-        
+            
             global $check_auth_button;
             global $cancel_auth_button;
             
             $form_post_url = secsign_id_login_post_url();
-        
+            
             // show access pass and print all information which is need to verify auth session
             echo "<form action='" . $form_post_url . "' method='post'>". PHP_EOL;
-        
+            
             // all information which is need to get auth session status if user hit 'OK' button
             echo "<input type='hidden' name='requestid' value='" . $authsession->getRequestID() . "' />" . PHP_EOL;
             echo "<input type='hidden' name='secsignid' value='" . $authsession->getSecSignID() . "' />" . PHP_EOL;
@@ -681,7 +687,7 @@ Author URI: http://www.secsign.com
             echo "<input type='hidden' name='servicename' value='" . $authsession->getRequestingServiceName() . "' />" . PHP_EOL;
             echo "<input type='hidden' name='serviceaddress' value='" . $authsession->getRequestingServiceAddress() . "' />" . PHP_EOL;
             echo "<input type='hidden' name='authsessionicondata' value='" . $authsession->getIconData() . "' />" . PHP_EOL;
-
+            
             $mapped_user = get_wp_user($authsession->getSecSignID());
             echo "<input type='hidden' name='mapped_wp_user' value='" . ($mapped_user != null ? $mapped_user->user_login : "null") . "' />" . PHP_EOL;
             
@@ -699,33 +705,33 @@ Author URI: http://www.secsign.com
             echo "</div><br /><br />" . PHP_EOL;
             echo "      </td>" . PHP_EOL;
             echo "  </tr>" . PHP_EOL;
-
+            
             echo "  <tr>" . PHP_EOL;
             echo "      <td colspan='2'>" . PHP_EOL;
             echo "          Please verify the access pass using your smartphone.<br /><br />" . PHP_EOL;
             echo "      </td>" . PHP_EOL;
             echo "  </tr>" . PHP_EOL;
-
+            
             echo "  <tr>" . PHP_EOL;
             echo "      <td align='left'>" . PHP_EOL;
-        
+            
             // cancel button
             echo "          <button type ='submit' name='" . $cancel_auth_button . "' value='1' style='width:100px'>Cancel</button>" . PHP_EOL;
             echo "      </td>" . PHP_EOL;
             echo "      <td align='right'>" . PHP_EOL;
-        
+            
             // ok button which will trigger auth status check
             echo "          <button type ='submit' name='" . $check_auth_button . "' value='1' style='width:100px'>OK</button>" . PHP_EOL;
-        
+            
             echo "      </td>" . PHP_EOL;
             echo "  </tr>" . PHP_EOL;
             echo "</table>" . PHP_EOL;
-        
+            
             // end of form
             echo "</form>". PHP_EOL;
         }
     }
-
+    
     
     
     if(! function_exists('add_error'))
@@ -741,7 +747,7 @@ Author URI: http://www.secsign.com
             if(empty($login_errors))
             {
                 $login_errors = new WP_Error();
-            } 
+            }
             else if(! is_wp_error($login_errors))
             {
                 $errors = $login_errors;
@@ -752,7 +758,7 @@ Author URI: http://www.secsign.com
             $login_errors->add('error', $error_message);
         }
     }
-
+    
     
     
     if(! (function_exists('print_error')))
@@ -763,11 +769,11 @@ Author URI: http://www.secsign.com
         function print_error($error, $print_login_form = false)
         {
             echo '<div class="login_error">' . apply_filters('login_errors', $error) . '</div>' . PHP_EOL;
-
+            
             if($print_login_form){
                 echo '<br />';
                 print_login_form();
             }
         }
     }
-?>
+    ?>

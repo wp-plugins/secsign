@@ -84,6 +84,9 @@ Yes, it's free for the user and the Wordpress admin - no matter how many users y
 
 == Changelog ==
 
+= 1.0.2 =
+* changed color of errors
+
 = 1.0.1 =
 * bug fix
 
