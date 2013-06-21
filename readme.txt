@@ -1,6 +1,6 @@
 === SecSign ===
 Contributors: SecSign
-Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate
+Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication
 Requires at least: 3.0.1
 Tested up to: 3.5.1
 Stable tag: trunk
@@ -17,6 +17,8 @@ SecSign ID - The mobile way to log into web sites
 * You and your users can also use SecSign ID to visit securely other web sites (e.g. [Portal.SecSign.com](https://portal.secsign.com) for true professional messaging and cloud sharing.)
 * This service is free for users and website owners and free of advertising - no matter how many users you have.
 * You can also integrate the SecSign ID as inhouse solution into your existing infrastructure (on request with licensed service and maintenance contract)
+
+http://www.youtube.com/watch?v=DNjrbEuMB7Y
 
 SecSign ID features:
 
@@ -63,6 +65,8 @@ and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 5. Drag and drop the "SecSign ID Login" widget to the "Main Sidebar"
 6. Go to the "Settings" screen and select the "SecSign ID Login" submenu.
 7. Change the service address which will be shown to the user in the smartphone app. This should match the URL the user will see, when he visits your site. Optionally, assign SecSign IDs to Wordpress users.
+
+http://www.youtube.com/watch?v=utphj_m6jd4
 
 == Frequently Asked Questions ==
 
