@@ -18,7 +18,7 @@ SecSign ID - The mobile way to log into web sites
 * This service is free for users and website owners and free of advertising - no matter how many users you have.
 * You can also integrate the SecSign ID as inhouse solution into your existing infrastructure (on request with licensed service and maintenance contract)
 
-http://www.youtube.com/watch?v=DNjrbEuMB7Y
+[youtube http://www.youtube.com/watch?v=DNjrbEuMB7Y]
 
 SecSign ID features:
 
@@ -66,7 +66,7 @@ and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 6. Go to the "Settings" screen and select the "SecSign ID Login" submenu.
 7. Change the service address which will be shown to the user in the smartphone app. This should match the URL the user will see, when he visits your site. Optionally, assign SecSign IDs to Wordpress users.
 
-http://www.youtube.com/watch?v=utphj_m6jd4
+[youtube http://www.youtube.com/watch?v=utphj_m6jd4]
 
 == Frequently Asked Questions ==
 
