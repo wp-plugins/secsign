@@ -1,6 +1,6 @@
 <?php
     
-    define("SCRIPT_REVISION", '$Revision: 1.15 $');
+    define("SCRIPT_REVISION", '$Revision: 1.16 $');
     
     class AuthSession
     {
@@ -196,7 +196,7 @@
      * PHP class to connect to a secsign id server. the class will check secsign id server certificate and request for authentication session generation for a given
      * user id which is called secsign id. Each authentication session generation needs a new instance of this class.
      *
-     * @version $Id: SecSignIDApi.php,v 1.15 2013-04-29 10:32:13 titus Exp $
+     * @version $Id: SecSignIDApi.php,v 1.16 2013-10-15 11:04:49 titus Exp $
      * @author SecCommerce Informationssysteme GmbH, Hamburg
      */
     class SecSignIDApi
@@ -211,6 +211,8 @@
         private $scriptVersion  = 0;
         private $referer        = NULL;
         private $logger = NULL;
+        
+        private $pluginName = NULL;
         
         
         /*
@@ -240,6 +242,8 @@
             $this->secSignIDServer = NULL;
             $this->secSignIDServerPort   = NULL;
             
+            $this->pluginName   = NULL;
+            
             $this->scriptVersion = NULL;            
             $this->logger = NULL;
         }
@@ -263,6 +267,14 @@
                 $logMessage = __CLASS__ . " (v" . $this->scriptVersion . "): " . $message;
                 call_user_func($this->logger, $logMessage);
             }
+        }
+        
+        /**
+         * Sets an optional plugin name
+         */
+        function setPluginName($pluginName)
+        {
+            $this->pluginName = $pluginName;
         }
         
         
@@ -292,6 +304,10 @@
                                       'secsignid' => $secsignid,
                                       'servicename' => $servicename,
                                       'serviceaddress' => $serviceadress);
+                                      
+            if($this->pluginName != NULL){
+                $requestParameter['pluginname'] = $this->pluginName;
+            }
                                       
             $requestQuery = http_build_query($this->buildParameterArray($requestParameter, NULL), '', '&');
             
@@ -385,6 +401,7 @@
         {
             //$mandatoryParams = array('apimethod' => $this->referer, 'scriptversion' => $this->scriptVersion);
             $mandatoryParams = array('apimethod' => $this->referer);
+            
             if(isset($authSession))
             {
                 // add auth session data to mandatory parameter array

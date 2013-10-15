@@ -35,12 +35,12 @@
             $table_name = get_database_table_name();
  
             //$wpdb->show_errors();
-            $sql = $wpdb->prepare("CREATE TABLE " . $table_name . " (" .
+            $sql = "CREATE TABLE " . $table_name . " (" .
                                   "wp_user_id  mediumint(9) NOT NULL, " .
                                   "wp_username text NOT NULL, " .
                                   "secsignid text NOT NULL, " .
                                   "UNIQUE KEY ID (wp_user_id)" .
-                                  ");");
+                                  ");";
             $wpdb->query($sql);
         }
     }
@@ -76,8 +76,9 @@
             $table_name = get_database_table_name();
         
             $result_set = array();
-        
-            $sql = $wpdb->prepare("SELECT wp_user_id, wp_username, secsignid FROM " . $table_name . ";");
+
+            $sql = "SELECT wp_user_id, wp_username, secsignid FROM ".$table_name.";";
+
             $all_users = $wpdb->get_results($sql);
             if($all_users)
             {
