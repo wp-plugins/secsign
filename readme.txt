@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication
 Requires at least: 3.0.1
-Tested up to: 3.7
+Tested up to: 3.8
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
