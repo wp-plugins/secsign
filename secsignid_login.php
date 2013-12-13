@@ -2,7 +2,7 @@
 /*
 Plugin Name: SecSign
 Version: 1.0.3
-Description: The plugin allows a user to login using a SecSign ID and their smartphone.
+Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
