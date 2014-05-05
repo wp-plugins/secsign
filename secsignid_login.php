@@ -1,11 +1,14 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0.3
+Version: 1.0.4
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
+
+// $Id: secsignid_login.php,v 1.10 2013/12/27 17:09:22 titus Exp $
+// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/examples/wordpress/secsign/secsignid_login.php,v $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -594,7 +597,10 @@ Author URI: http://www.secsign.com
             
             $post_url = $_SERVER['REQUEST_URI'];
             if (strcmp($post_url,"")==0) $post_url = "/";
-            return $prot . "://" . $_SERVER['SERVER_NAME'] . $post_url;
+            
+            $port = ":" . $_SERVER['SERVER_PORT'];
+            
+            return $prot . "://" . $_SERVER['SERVER_NAME'] . $port . $post_url;
         }
     }
     
@@ -626,7 +632,7 @@ Author URI: http://www.secsign.com
             echo "<form action='" . $form_post_url . "' method='post'>" . PHP_EOL;
             echo "  SecSign ID:<br>" . PHP_EOL;
             echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' style='margin-top:5px;'/>" . PHP_EOL;
-            echo "  <button type ='submit' name='login' value='1' style='width:70px'>Login</button> <span style='font-size:80%;position:relative;left:40px;'><a href='https://www.secsign.com' target='_blank'>New to SecSign?</a></span>" . PHP_EOL;
+            echo "  <button type ='submit' name='login' value='1' style='width:70px'>Login</button> <span style='font-size:80%;position:relative;left:40px;'><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a></span>" . PHP_EOL;
             echo "</form>";
         }
     }

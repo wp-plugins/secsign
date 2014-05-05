@@ -1,6 +1,14 @@
 <?php
+
+// $Id: SecSignIDApi.php,v 1.23 2014/04/08 15:28:15 titus Exp $
+// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/php/SecSignIDApi.php,v $
     
-    define("SCRIPT_REVISION", '$Revision: 1.16 $');
+//
+// SecSign ID Api in php.
+//
+// (c) copyright SecSign Technologies Inc.
+//
+    define("SCRIPT_REVISION", '$Revision: 1.23 $');
     
     class AuthSession
     {
@@ -78,7 +86,8 @@
         private $requestID        = NULL;
         
         /**
-         * icon data of the so called access pass. the image data needs to be displayed otherwise the user does not know which access apss he needs to choose in order to accept the authentication session.*/
+         * icon data of the so called access pass. the image data needs to be displayed otherwise the user does not know which access apss he needs to choose in order to accept the authentication session.
+         */
         private $authSessionIconData = NULL;
         
         
@@ -155,7 +164,7 @@
         /**
          * Creates/Fills the auth session obejct using the given array. The array must use secsignid, auth session id etc as keys.
          */
-        function createAuthSessionFromArray($array)
+        function createAuthSessionFromArray($array, $ignoreOptionalParameter = false)
         {
             if(! isset($array)){
                 throw new Exception("Parameter array is NULL.");
@@ -172,10 +181,10 @@
             if(! isset($array['authsessionid'])){
                 throw new Exception("Parameter array does not contain a value 'authsessionid'.");
             }
-            if(! isset($array['servicename'])){
+            if(! isset($array['servicename']) && !$ignoreOptionalParameter){
                 throw new Exception("Parameter array does not contain a value 'servicename'.");
             }
-            if(! isset($array['serviceaddress'])){
+            if(! isset($array['serviceaddress']) && !$ignoreOptionalParameter){
                 throw new Exception("Parameter array does not contain a value 'serviceaddress'.");
             }
             if(! isset($array['requestid'])){
@@ -196,7 +205,7 @@
      * PHP class to connect to a secsign id server. the class will check secsign id server certificate and request for authentication session generation for a given
      * user id which is called secsign id. Each authentication session generation needs a new instance of this class.
      *
-     * @version $Id: SecSignIDApi.php,v 1.16 2013-10-15 11:04:49 titus Exp $
+     * @version $Id: SecSignIDApi.php,v 1.23 2014/04/08 15:28:15 titus Exp $
      * @author SecCommerce Informationssysteme GmbH, Hamburg
      */
     class SecSignIDApi
@@ -213,6 +222,7 @@
         private $logger = NULL;
         
         private $pluginName = NULL;
+        private $lastResponse = NULL;
         
         
         /*
@@ -248,6 +258,27 @@
             $this->logger = NULL;
         }
         
+        function prerequisite()
+        {
+            if(! function_exists("curl_init")){
+                return false;
+            }
+            
+            if(! function_exists("curl_exec")){
+                return false;
+            }
+            
+            if(! is_callable("curl_init", true, $callable_name)){
+                return false;
+            }
+            
+            if(! is_callable("curl_exec", true, $callable_name)){
+                return false;
+            }
+            
+            return true;
+        }
+        
         /*
          * Sets a function which is used as a logger
          */
@@ -275,6 +306,14 @@
         function setPluginName($pluginName)
         {
             $this->pluginName = $pluginName;
+        }
+        
+        /**
+         * Gets last response
+         */
+        function getResponse()
+        {
+            return $this->lastResponse;
         }
         
         
@@ -309,13 +348,10 @@
                 $requestParameter['pluginname'] = $this->pluginName;
             }
                                       
-            $requestQuery = http_build_query($this->buildParameterArray($requestParameter, NULL), '', '&');
-            
-            $response      = $this->send($requestQuery);
-            $responseArray = $this->checkResponse($response, TRUE); // will throw an exception in case of an error
+            $response = $this->send($requestParameter, NULL);
             
             $authSession = new AuthSession();
-            $authSession->CreateAuthSessionFromArray($responseArray);
+            $authSession->CreateAuthSessionFromArray($response);
             
             return $authSession;
         }
@@ -335,12 +371,9 @@
             }
             
             $requestParameter = array('request' => 'ReqGetAuthSessionState');
-            $requestQuery = http_build_query($this->buildParameterArray($requestParameter, $authSession), '', '&');
+            $response = $this->send($requestParameter, $authSession);
             
-            $response      = $this->send($requestQuery);
-            $responseArray = $this->checkResponse($response, TRUE); // will throw an exception in case of an error
-            
-            return $responseArray['authsessionstate'];
+            return $response['authsessionstate'];
         }
         
         
@@ -358,13 +391,9 @@
             }      
             
             $requestParameter = array('request' => 'ReqCancelAuthSession');
+            $response = $this->send($requestParameter, $authSession);
             
-            $requestQuery = http_build_query($this->buildParameterArray($requestParameter, $authSession), '', '&');
-            $response     = $this->send($requestQuery);
-            
-            $responseArray = $this->checkResponse($response, TRUE); // will throw an exception in case of an error
-            
-            return $responseArray['authsessionstate'];
+            return $response['authsessionstate'];
         }
         
         /**
@@ -381,18 +410,10 @@
             }      
             
             $requestParameter = array('request' => 'ReqReleaseAuthSession');
-            
-            $requestQuery = http_build_query($this->buildParameterArray($requestParameter, $authSession), '', '&');
-            $response     = $this->send($requestQuery);
-            
-            $responseArray = $this->checkResponse($response, TRUE); // will throw an exception in case of an error
-            
-            return $responseArray['authsessionstate'];
+            $response     = $this->send($requestParameter, $authSession);
+
+            return $response['authsessionstate'];
         }
-        
-        
-        // private functions
-        
         
         /**
          * build an array with all parameters which has to be send to server
@@ -419,14 +440,17 @@
          * sends given parameters to secsign id server and wait given amount
          * of seconds till the connection is timed out
          */
-        function send($parameter, $timeout_in_seconds=15)
+        function send($parameter, $authSession)
         {		
+            $requestQuery = http_build_query($this->buildParameterArray($parameter, $authSession), '', '&');
+            $timeout_in_seconds = 15;
+            
             // create cURL resource
-            $ch = $this->getCURLHandle($this->secSignIDServer, $this->secSignIDServerPort, $parameter, $timeout_in_seconds);
+            $ch = $this->getCURLHandle($this->secSignIDServer, $this->secSignIDServerPort, $requestQuery, $timeout_in_seconds);
             $this->log("curl_init: " . $ch);
             
             // $output contains the output string
-            $this->log("cURL curl_exec sent params: " . $parameter);
+            $this->log("cURL curl_exec sent params: " . $requestQuery);
             $output = curl_exec($ch);
             if ($output === false) 
             {
@@ -445,7 +469,7 @@
                 if($this->secSignIDServer_fallback != NULL)
                 {
                     $this->log("curl: get new handle from fallback server.");
-                    $ch = $this->getCURLHandle($this->secSignIDServer_fallback, $this->secSignIDServerPort_fallback, $parameter, $timeout_in_seconds);
+                    $ch = $this->getCURLHandle($this->secSignIDServer_fallback, $this->secSignIDServerPort_fallback, $requestQuery, $timeout_in_seconds);
                     $this->log("curl_init: " . $ch . " connecting to " . curl_getinfo($ch, CURLINFO_EFFECTIVE_URL));
                     
                     // $output contains the output string
@@ -468,7 +492,9 @@
                 }
             }
             $this->log("curl_exec response: " . ($output == NULL ? "NULL" : $output));
-            return $output;
+            $this->lastResponse = $output;
+            
+            return $this->checkResponse($output, TRUE); // will throw an exception in case of an error
         }
         
         

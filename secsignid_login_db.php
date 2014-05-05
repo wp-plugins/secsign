@@ -1,4 +1,7 @@
 <?php
+
+// $Id: secsignid_login_db.php,v 1.2 2013-10-15 13:52:02 jwollner Exp $
+// $Source: /cvsroot/SecCommerceDev/seccommerce/secsignerid/examples/wordpress/secsign/secsignid_login_db.php,v $
     
     add_action('plugins_loaded', 'check_database_table'); // wordpress calls this functionb whenever plugins are loaded
    

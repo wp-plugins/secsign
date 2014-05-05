@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
-Tested up to: 3.8
+Tested up to: 3.9
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -87,6 +87,10 @@ Yes, it's free for the user and the Wordpress admin - no matter how many users y
 3. If your SecSign ID is not associated with an Wordpress username, you can create one or assign the SecSign ID to an existing user.
 
 == Changelog ==
+
+= 1.0.4 =
+* allowing wordpress installations on nonstandard ports
+* added new PHP API
 
 = 1.0.3 =
 * added new PHP API
