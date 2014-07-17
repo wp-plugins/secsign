@@ -7,34 +7,34 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Use the SecSign ID two-factor authentication on your Wordpress site to enable easy and secure login using your iPhone or Android phone.
+Use the SecSign ID two-factor authentication on your WordPress site to enable easy and secure login using your iPhone or Android phone.
 
 == Description ==
 
 SecSign ID - The mobile way to log into web sites
 
-* Integrate SecSign ID into your own Wordpress site in less than one minute. (There are also APIs for PHP and Java.)
-* You and your users can also use SecSign ID to visit securely other web sites (e.g. [Portal.SecSign.com](https://portal.secsign.com) for true professional messaging and cloud sharing.)
-* This service is free for users and website owners and free of advertising - no matter how many users you have.
-* You can also integrate the SecSign ID as inhouse solution into your existing infrastructure (on request with licensed service and maintenance contract)
+* Integrate SecSign ID into your own WordPress site in less than one minute. (There are also APIs for PHP and Java.)
+* You and your users can also use SecSign ID to visit securely other web sites (e.g. [Portal.SecSign.com](https://portal.secsign.com) for truly professional messaging and cloud sharing.)
+* This service is free for users and web site owners and free of advertising - no matter how many users the web site has.
+* You can also integrate SecSign ID as in-house solution into your existing infrastructure (on request with licensed service and maintenance contract)
 
 [youtube http://www.youtube.com/watch?v=DNjrbEuMB7Y]
 
 SecSign ID features:
 
-* Quick and easy to use single sign-on with 2048 bit high security
+* Quick and easy to use single sign-on with 2048-bit high security
 * Eliminates password chaos and security concerns
-* No mobile number, credit card or time-consuming registration required.
+* No mobile number, credit card or time-consuming registration required
 * No need for long cryptical passwords, time-consuming retyping of codes from SMS or reading of QR codes
 * High security and strong cryptography on all levels
 
 Technical details (only for experts):
 
-* Up to 2048 bit asymmetric private keys
+* Up to 2048-bit asymmetric private keys
 * Brute force resistant private key storage (SafeKey mechanism)
-* Private keys are never transmitted to authentication server
+* Private keys are never transmitted to the authentication server
 * High availability through redundant remote failover servers
-* Multi-tier high security architecture with multiple firewalls and protocol filters.
+* Multi-tier high security architecture with multiple firewalls and protocol filters
 
 SecSign ID in action:
 
@@ -46,47 +46,77 @@ That's it! You can now use your SecSign ID to sign in.
 
 How to sign in:
 
-Just type in your user short name (for instance at [SecSign Portal](https://portal.secsign.com) or your Wordpress site using this plugin), confirm your sign-in on your phone and you are done within seconds.
+Just type in your user short name (for instance at [SecSign Portal](https://portal.secsign.com) or your WordPress site using this plugin), confirm your sign-in on your phone and you are done within seconds.
 
-Despite its simplicity SecSign ID works with comprehensive strongest security technologies. The solution we offer is unique and does not submit any confidential data through a web browser.
+Despite its simplicity SecSign ID works with comprehensive and strongest security technologies. The solution we offer is unique and does not submit any confidential data through a web browser.
 
-We have a strong background of more than 14 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
+We have a noticeable background of more than 14 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
 
 Visit our official site to get the app and more information: [SecSign.com](https://www.secsign.com)
+
 
 and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 
 == Installation ==
 
-1. Login into Wordpress as admin and go to the plugins screen and select the "Add New" submenu.
-2. Search for "SecSign" and click "Install Now" or click on "Upload" and select the downloaded zip archive.
-3. Activate the plugin in the "Installed Plugins" list.
-4. Go to the "Appearance" screen and click the "Widgets" submenu.
-5. Drag and drop the "SecSign ID Login" widget to the "Main Sidebar"
-6. Go to the "Settings" screen and select the "SecSign ID Login" submenu.
-7. Change the service address which will be shown to the user in the smartphone app. This should match the URL the user will see, when he visits your site. Optionally, assign SecSign IDs to Wordpress users.
+= Install the Plugin =
+
+* Login into WordPress as admin, go to the plugins screen and select the "Add New" submenu.
+* Search for "SecSign" and click "Install Now" or click on "Upload" and select the downloaded zip archive.
+* Activate the plugin in the "Installed Plugins" list.
+
+= Add the Login Widget =
+
+* You can add the SecSignID login widget to your site to allow the login on, for example, the side menu.
+* Go to the "Appearance" screen and click on the "Widgets" submenu.
+* Drag and drop the "SecSign ID Login" widget to, for example, the "Main Sidebar"
+
+= General Configuration =
+
+* Go to the "Settings" screen and select the "SecSign ID Login" submenu.
+* Change the service address which will be shown to the user in the smartphone app. This should match the URL the users will see, when visiting your site.
+
+= Co-worker Configuration =
+
+* You can integrate the SecSign ID login on the wp-login.php page. This is done by default.
+* Optionally, you can assign SecSign IDs to the WordPress users of your co-workers (admins, editors, authors and contributors). The users themselves can also assign a SecSign ID in their profile.
+* You can also deactivate the normal password-based login for the users, so they can only login using the SecSign ID. It’s recommended that you deactivate the password login for all co-workers, so your site is secured against brute force attacks. You should only allow the password-based login for your own admin account, in case you lose your phone, and of course for all co-workers without smartphones. These accounts should be secured using a very strong password.
+
+= User Configuration =
+
+* Optionally, you can assign SecSign IDs to the WordPress users of your website users (subscribers). The users themselves can also assign a SecSign ID in their profile.
+* It’s also possible to activate and deactivate the password-based login for your users.
+
+= Fast Registration =
+
+* In order not to have to create new user accounts yourself you can allow your co-workers or web site users to create user accounts themselves by logging in with their SecSign ID via wp-login.php or the login widget. You can allow them to create a new wordpress user or assign an existing one. After they created an wordpress account, you can assign wordpress roles to your co-workers via the user administration.
 
 [youtube http://www.youtube.com/watch?v=utphj_m6jd4]
 
 == Frequently Asked Questions ==
 
-= How can users assign a SecSign ID to their Wordpress account? =
+= How can users assign a SecSign ID to their WordPress account? =
 
-You can just sign in with your SecSign ID. You will then be shown a dialog, where you can create a new user or assign your SecSign ID to an existing Wordpress user.
+You can just sign in with your SecSign ID. You will then be shown a dialog, where you can create a new user or assign your SecSign ID to an existing WordPress user.
 
 Alternatively, you can go to your profile page to assign a SecSign ID.
 
 = Is this service for free? =
 
-Yes, it's free for the user and the Wordpress admin - no matter how many users you have. It's also free of advertising.
+Yes, it's free for the user and the WordPress admin - no matter how many users the site has. It's also free of advertising.
 
 == Screenshots ==
 
-1. This is the Login Form, where you input your SecSign ID from the smartphone app.
-2. You will be shown an Access Pass. Touch the matching one on your phone.
-3. If your SecSign ID is not associated with an Wordpress username, you can create one or assign the SecSign ID to an existing user.
+1. This is the login form in which you enter your SecSign ID shown in the smartphone app.
+2. You will be shown an access pass. Tab on the matching one on your phone.
+3. If your SecSign ID is not associated with a WordPress username, you can create one or assign the SecSign ID to an existing user.
 
 == Changelog ==
+
+= 1.0.5 =
+* Integration in wp-login.php page
+* Possibility to deactivate the normal password-based login
+* Layout fixes
 
 = 1.0.4 =
 * allowing wordpress installations on nonstandard ports
