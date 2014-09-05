@@ -1,6 +1,6 @@
 === SecSign ===
 Contributors: SecSign
-Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
+Tags: two-factor authentication, two-factor, authentication, 2 factor authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
 Tested up to: 4.0
 Stable tag: trunk
@@ -15,7 +15,7 @@ SecSign ID - The mobile way to log into web sites
 
 
 SecSign ID is a plugin for real two-factor authentication (2FA) for Wordpress sites. 2FA adds another layer of security to your website by using a second token. In this case the physical token is your smartphone. 
-If you seek for more information about about two-factor authentication have a look at [www.secsign.com](https://www.secsign.com/two-factor-authentication/).
+If you seek for more information about about two-factor authentication have a look at [https://www.secsign.com](https://www.secsign.com/two-factor-authentication/).
 
 
 * Integrate SecSign ID into your own WordPress site in less than one minute. (There are also APIs for PHP and Java.)
@@ -42,7 +42,7 @@ Technical details (only for experts):
 * High availability through redundant remote failover servers
 * Multi-tier high security architecture with multiple firewalls and protocol filters
 
-More information at [www.secsign.com](https://www.secsign.com/security-id/).
+More information at [https://www.secsign.com](https://www.secsign.com/security-id/).
 
 SecSign ID in action:
 
@@ -60,7 +60,7 @@ Despite its simplicity SecSign ID works with comprehensive and strongest securit
 
 We have a noticeable background of more than 14 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
 
-Visit our official site to get the app and more information: [SecSign.com](https://www.secsign.com)
+Visit our official site to get the app and more information: [https://www.secsign.com](https://www.secsign.com)
 
 
 and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
@@ -122,6 +122,7 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 == Changelog ==
 = 1.0.6 =
 * Fixed a problem with some redirect urls
+* Use of SecSign ID JS API [GitHub - ](https://github.com/SecSign/secsign-js-api) for automatically login
 * The login will now automatically continue after you selected the access pass on your smartphone. No need to click the OK button.
 * Added new installer icons
 * Fixed a problem on multisites which could allow a password-based login, although the password-based login was deactivated for this user.
@@ -132,19 +133,19 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 * Layout fixes
 
 = 1.0.4 =
-* allowing wordpress installations on nonstandard ports
-* added new SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
+* Allowing wordpress installations on nonstandard ports
+* Added new version of SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
 
 = 1.0.3 =
-* added new SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
-* fixed wpdb::prepare() warning
+* Added new version of SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
+* Fixed wpdb::prepare() warning
 
 = 1.0.2 =
-* changed color of errors
+* Changed color of errors
 
 = 1.0.1 =
-* bug fix
+* Bug fixes
 
 = 1.0 =
-* initial release
+* Initial release
 
