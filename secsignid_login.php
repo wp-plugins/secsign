@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0.5
+Version: 1.0.6
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.17 2014/07/07 14:43:32 jwollner Exp $
+// $Id: secsignid_login.php,v 1.21 2014/09/05 10:15:05 jwollner Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -25,21 +25,29 @@ Author URI: http://www.secsign.com
         include( WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/secsignid_login_admin.php' );
     }
 
-    // globals
+    //buttons
     global $check_auth_button;
     global $cancel_auth_button;
-    
     $check_auth_button    = "check_auth";
     $cancel_auth_button   = "cancel_auth";
     
+    //session state
     global $secsignid_login_auth_session_status;
     $secsignid_login_auth_session_status = AuthSession::NOSTATE;
+    
+    //cookies
+    global $secsignid_login_auth_cookie_name;
+    global $secsignid_login_secure_auth_cookie_name;
+    $secsignid_login_auth_cookie_name = 'secsign_id_wordpress_cookie';
+    $secsignid_login_secure_auth_cookie_name = 'secsign_id_wordpress_secure_cookie';
     
     /**
      * wordpress hooks
      */
-    add_action('init', 'secsign_id_init', 1);
-    add_action('init', 'secsign_id_check_ticket', 0);
+    add_action('init', 'secsign_id_init_auth_cookie_check', 100); //checks the secsign id cookie
+    add_action('init', 'secsign_id_init', 1); //widget init
+    add_action('init', 'secsign_id_check_ticket', 0); //checks state of the session and does the login
+    add_action('clear_auth_cookie', 'secsign_id_unset_cookie', 5); //unsets the secsign id cookie
     add_filter('authenticate', 'secsign_id_check_login', 100, 3); //high priority, so it will be called last, and can disallow password based authentication
     add_action('login_footer', 'secsign_custom_login_form',0); //custom login form
     
@@ -60,7 +68,11 @@ Author URI: http://www.secsign.com
 							$("#secsignid-login").insertBefore($("#login .message"));
 						else
 							$("#secsignid-login").insertBefore($("#loginform"));
-
+						
+						if(typeof ajaxCheckForSessionState == 'function')
+						{
+							checkSessionStateTimerId = window.setInterval(function(){ajaxCheckForSessionState()}, timeTillAjaxSessionStateCheck);
+						}
 					});
 				</script>    
 				<style type='text/css'>
@@ -83,7 +95,7 @@ SECSIGNCSS;
 	   }
    }
     
-    if(! (function_exists('secsign_id_init')))
+    if(! (function_exists('secsign_id_check_login')))
     {
 		/**
 		 * this hook will be called for every password based login
@@ -158,6 +170,166 @@ SECSIGNCSS;
 			}
 		
 			register_widget('SecSignIDLogin_Widget');
+		}
+    }
+    
+    if(! (function_exists('secsign_id_init_auth_cookie_check')))
+    {
+    	/**
+		 * init function which is hooked to wordpress init action.
+		 * used to check if this login is legit or not
+		 * on multisites you can otherwise bypass the authentication and use the password-based one even if deactivated
+		 */
+    	function secsign_id_init_auth_cookie_check()
+    	{
+    		if(is_multisite() && is_user_logged_in() //only applies to multisites, only check if logged in
+    		&& (strpos($_SERVER['REQUEST_URI'],'wp-login') === false)) // not on wp-login
+			{
+				$user = wp_get_current_user();
+				if ($user)
+				{
+					$allow_password_login = get_allow_password_login($user->id);
+					if(!$allow_password_login && !secsign_id_verify_cookie($user->user_login)) //if password-based login not allowed and cookie not verified -> logout
+					{
+						wp_logout();
+						wp_safe_redirect(secsign_id_login_post_url());
+					}
+				}
+			}
+		}
+    }
+    
+    if(! (function_exists('secsign_id_get_random_secret')))
+    {
+    	/**
+		 * gets a random secret from the db or creates it if not available
+		 * @return string returns the random secret to sign the auth cookie
+		 */
+    	function secsign_id_get_random_secret()
+    	{
+    		if (!get_option('secsign_id_cookie_secret'))
+    		{
+    			if(function_exists('openssl_random_pseudo_bytes'))
+    			{
+    				$random = openssl_random_pseudo_bytes(32);
+    			}
+    			else
+    			{
+    				$random = wp_generate_password(32, true, true);
+    			}
+    			
+    			add_option('secsign_id_cookie_secret', base64_encode($random));
+    		}
+    		return base64_decode(get_option('secsign_id_cookie_secret'));
+		}
+    }
+    
+    if(! (function_exists('secsign_id_verify_cookie')))
+    {
+    	/**
+		 * verifies a user cookie
+		 * @param string $username the user's username
+		 * @return bool returns true if the auth cookie is ok, or false if something is wrong
+		 */
+    	function secsign_id_verify_cookie($username)
+    	{
+			global $secsignid_login_auth_cookie_name;
+    		global $secsignid_login_secure_auth_cookie_name;
+    		
+    		$cookie_name = $secsignid_login_auth_cookie_name;
+        	if (is_ssl())
+        	{
+        		$cookie_name = $secsignid_login_secure_auth_cookie_name;
+        	}
+			
+        	if(!isset($_COOKIE[$cookie_name]))
+        	{
+            	return false; //cookie not there
+        	}
+
+        	$cookie = explode('|', $_COOKIE[$cookie_name]);
+        	if (count($cookie) != 2)
+        	{
+            	return false; //cookie doesn't contain value and hmac
+        	}
+        	
+        	list($cookie_value, $signature) = $cookie;
+        	if (hash_hmac('sha512', $cookie_value, secsign_id_get_random_secret()) !== $signature)
+        	{
+            	return false; //hmac doesn't match
+        	}
+			
+        	$cookie_array = explode('|', base64_decode($cookie_value));
+        	if (count($cookie_array) != 2)
+        	{
+            	return false; //cookie doesn't contain username and expiration date
+        	}
+        	
+        	list($username_in_cookie, $expire_in_cookie) = $cookie_array;
+        	if (base64_decode($username_in_cookie) !== $username)
+        	{
+            	return false; //wrong username in cookie
+        	}
+			
+        	$expire = intval($expire_in_cookie);
+        	if ($expire < strtotime('now'))
+        	{
+            	return false; //cookie expired
+        	}
+        	
+        	return true;
+		}
+    }
+    
+    if(! (function_exists('secsign_id_set_cookie')))
+    {
+    	/**
+		 * sets a secsign id auth cookie, which proves that the login was done with this plugin
+		 * @param string $username the user's username
+		 */
+    	function secsign_id_set_cookie($username)
+    	{
+			global $secsignid_login_auth_cookie_name;
+    		global $secsignid_login_secure_auth_cookie_name;
+    		
+    		if(is_multisite()) //only needed on multisite
+    		{
+        		$expire = strtotime('+1 day');
+        		$secure = false;
+        		$cookie_name = $secsignid_login_auth_cookie_name;
+        		if (is_ssl())
+        		{
+        			$secure = true;
+        			$cookie_name = $secsignid_login_secure_auth_cookie_name;
+        		}
+				
+				$cookie_value = base64_encode(sprintf("%s|%d", base64_encode($username), $expire));
+				$signature = hash_hmac('sha512', $cookie_value, secsign_id_get_random_secret());
+        		$cookie = sprintf("%s|%s", $cookie_value, $signature);
+        		setcookie($cookie_name, $cookie, $expire, COOKIEPATH, COOKIE_DOMAIN, $secure, true);
+        	}
+		}
+    }
+    
+    if(! (function_exists('secsign_id_unset_cookie')))
+    {
+    	/**
+		 * unsets the secsign id auth cookie
+		 */
+    	function secsign_id_unset_cookie()
+    	{
+			global $secsignid_login_auth_cookie_name;
+    		global $secsignid_login_secure_auth_cookie_name;
+    		
+    		if(is_multisite()) //only needed on multisite
+    		{
+    			$cookie_name = $secsignid_login_auth_cookie_name;
+        		if (is_ssl())
+        		{
+        			$cookie_name = $secsignid_login_secure_auth_cookie_name;
+        		}
+    			setcookie($cookie_name, '', strtotime('-1 day'), COOKIEPATH, COOKIE_DOMAIN);
+			}
 		}
     }
     
@@ -424,6 +596,14 @@ SECSIGNCSS;
 				$redirectAfterLogoutTo = site_url();
 				echo '<a href="' . wp_logout_url($redirectAfterLogoutTo) . '">Logout</a>';
 				echo "</form>";
+				if (strpos($_SERVER['REQUEST_URI'],'interim-login=1') !== false)
+				{
+					echo "<script>";
+					echo "$(document).ready(function(){";
+					echo "if($('#login .message').length > 0) $('#login .message').hide();";
+					echo "$('#loginform').hide();";
+					echo "});</script>";
+				}
 			}
 		
 			// print widget closing tag
@@ -519,7 +699,8 @@ SECSIGNCSS;
 							insert_user_mapping($user->ID, $user->user_login, $_POST['secsignid'], $password_login_allowed);
 						}
 					
-						wp_set_auth_cookie($user->ID, false, is_ssl()); // http://codex.wordpress.org/Function_Reference/wp_set_auth_cookie
+						wp_set_auth_cookie($user->ID, false, is_ssl());
+						secsign_id_set_cookie($user->user_login);
 						do_action('wp_login', $user->user_login, $user);
 					
 						wp_set_current_user($user->ID);
@@ -580,6 +761,7 @@ SECSIGNCSS;
 							}
 
 							wp_set_auth_cookie($user->ID, false, is_ssl());
+							secsign_id_set_cookie($user->user_login);
 							do_action('wp_login', $user->user_login, $user);
 						
 							wp_set_current_user($user->ID);
@@ -662,7 +844,8 @@ SECSIGNCSS;
 										$user =  new WP_User($user_data->ID);
 									}
 								
-									wp_set_auth_cookie($user->ID, false, is_ssl()); // http://codex.wordpress.org/Function_Reference/wp_set_auth_cookie
+									wp_set_auth_cookie($user->ID, false, is_ssl());
+									secsign_id_set_cookie($user->user_login);
 									do_action('wp_login', $user->user_login, $user);
 					
 									wp_set_current_user($user->ID);
@@ -713,15 +896,12 @@ SECSIGNCSS;
             
             $post_url = $_SERVER['REQUEST_URI'];
             
-            $post_url = secsign_id_login_remove_url_param($post_url, 'loggedout');
-            $post_url = secsign_id_login_remove_url_param($post_url, 'redirect_to', $redirect_url);
+            $post_url = secsign_id_login_remove_all_url_params($post_url, $redirect_url);
             if (!empty($redirect_url))
             {
             	session_start();
-            	$_SESSION['redirect_to']=$redirect_url;
+            	$_SESSION['redirect_to']=urldecode($redirect_url);
             }
-            $post_url = secsign_id_login_remove_url_param($post_url, 'reauth');
-            $post_url = secsign_id_login_remove_url_param($post_url, 'action');
             
             if (strcmp($post_url,"")==0) $post_url = "/";
             
@@ -731,35 +911,63 @@ SECSIGNCSS;
         }
     }
     
-    if(! (function_exists('secsign_id_login_remove_url_param')))
+    if(! (function_exists('secsign_id_login_remove_all_url_params')))
     {
         /**
-         * removes a given parameter from a url path
-         * the third parameter is optional and returns the value by reference
-         * Example: secsign_id_login_remove_url_param('/wp-login-php?para1=1&para2=2', 'para1')
-         *  -> '/wp-login-php?para2=2'
+         * removes all not needed parameter (loggedout, reauth, action) from a url path
+         * the second parameter is optional and returns the redirect_to value by reference if available
+         * Example: secsign_id_login_remove_url_param('/wp-login-php?para1=1&para2=2')
+         *  -> '/wp-login-php'
          *
-         * @param string $url the URL path to remove the parameter from
-         * @param string $param_to_remove the name of the parameter to remove
-         * @param string $value Optional. if given, will be set to the value of the parameter, that was removed
+         * @param string $url the URL path to remove the parameters from
+         * @param string $redirect_to Optional. if given, will be set to the value of the redirect_to parameter, that was removed
          *
-         * @return string the url without the given parameter
+         * @return string the url without the parameters
          */
-        function secsign_id_login_remove_url_param($url, $param_to_remove, &$value=NULL)
+        function secsign_id_login_remove_all_url_params($url, &$redirect_to=NULL)
         {
-            $parsed_uri = parse_url($url);
-        	if (isset($parsed_uri['query']))
-        	{
-        		parse_str($parsed_uri['query'],$query);
-        		if (isset($query[$param_to_remove]))
-        		{
-        			$value = $query[$param_to_remove];
-        			unset($query[$param_to_remove]);
-        		}
-            	
-            	return $parsed_uri['path'] . '?' . http_build_query($query);
-        	}
-            return $url;
+            if (strpos($url, '?') === false) //no parameters
+            {
+            	return $url;
+            }
+            
+            $exploded_url = explode("?", $url);
+            $begin = $exploded_url[0];
+            
+            if (count($exploded_url) == 1) //contains '?' but no parameters
+            {
+            	return $begin;
+            }
+            
+            $exploded_params = explode("&", $exploded_url[1]);
+            
+            $parameters = "";
+            
+            if (count($exploded_params) > 0) //there are parameters
+            {
+            	foreach($exploded_params as $para) //for each parameter
+            	{
+            		$exploded_para = explode("=", $para);
+            		if (count($exploded_para) == 2)
+            		{
+            			if ($exploded_para[0] == "redirect_to")
+            			{
+            				$redirect_to = $exploded_para[1];
+            			}
+            			else if (($exploded_para[0] == "loggedout") || ($exploded_para[0] == "reauth") || ($exploded_para[0] == "action"))
+            			{
+            				//do nothing, we don't want these parameters
+            			}
+            			else //all other parameters are added to the url again
+            			{
+            				if (strlen($parameters) > 0) $parameters = $parameters . "&";
+            				$parameters = $parameters . $para;
+            			}
+            		}
+            	}
+            }
+            
+            return $begin . "?" . $parameters;
         }
     }
     
@@ -953,7 +1161,7 @@ ENDCSS;
             // end of form
             echo "</form><div style='display:block;clear:both'></div>". PHP_EOL;
             secsignid_login_hide_wp_login();
-
+            secsignid_login_print_ajax_check($authsession);
         }
     }
     
@@ -972,6 +1180,71 @@ ENDCSS;
 				echo '$("#login .message").hide();';
 				echo "</script>";
             }
+        }
+    }
+    
+    if(! function_exists('secsignid_login_print_ajax_check'))
+    {
+        /**
+         * prints ajax code to check the status of the login and click the OK button automatically when the login was accepted
+         *
+         * @param AuthSession $authsession the authentication session to poll the session state for
+         */
+        function secsignid_login_print_ajax_check($authsession)
+        {
+        	global $check_auth_button;
+            echo "<script type='text/javascript' src='". plugins_url( 'SecSignIDApi.js' , __FILE__ )  . "'></script>". PHP_EOL . "<script>";
+            echo "var timeTillAjaxSessionStateCheck = 3700; var checkSessionStateTimerId = -1;". PHP_EOL;
+            echo "function ajaxCheckForSessionState(){". PHP_EOL;  
+            echo "var secSignIDApi = new SecSignIDApi({'posturl' : '" . parse_url(plugins_url( 'signin-bridge.php' , __FILE__ ), PHP_URL_PATH) . "'});". PHP_EOL;
+			echo "secSignIDApi.getAuthSessionState(";
+			echo "'" .$authsession->getSecSignID() . "', '" . $authsession->getRequestID() ."', '". $authsession->getAuthSessionID() . "', ". PHP_EOL;
+$js = <<<VERBATIMJS
+function(responseMap){  
+if(responseMap){
+	// check if response map contains error message or if authentication state could not be fetched from server.
+	if("errormsg" in responseMap){
+    	return;
+    } else if(! ("authsessionstate" in responseMap)){
+    	return;
+	}
+	if(responseMap["authsessionstate"] == undefined || responseMap["authsessionstate"].length < 1){
+    	// got answer without an auth session state. this is not parsable and will throw the error UNKNOWN
+        return;
+    }
+                    
+    // everything okay. authentication state can be checked...
+    var authSessionStatus = parseInt(responseMap["authsessionstate"]);
+    var SESSION_STATE_NOSTATE = 0;
+    var SESSION_STATE_PENDING = 1;
+    var SESSION_STATE_EXPIRED = 2;
+    var SESSION_STATE_AUTHENTICATED = 3;
+    var SESSION_STATE_DENIED = 4;
+    var SESSION_STATE_SUSPENDED = 5;
+    var SESSION_STATE_CANCELED = 6;
+    var SESSION_STATE_FETCHED = 7;
+    var SESSION_STATE_INVALID = 8;
+    
+    if((authSessionStatus == SESSION_STATE_AUTHENTICATED) || (authSessionStatus == SESSION_STATE_DENIED) || (authSessionStatus == SESSION_STATE_EXPIRED)
+    || (authSessionStatus == SESSION_STATE_SUSPENDED) || (authSessionStatus == SESSION_STATE_INVALID) || (authSessionStatus == SESSION_STATE_CANCELED)){
+    	window.clearInterval(checkSessionStateTimerId);
+VERBATIMJS;
+			echo $js . PHP_EOL;
+            echo "$(\"button[name='". $check_auth_button ."']\").click();". PHP_EOL;
+            echo "}";
+            echo "}});";
+			echo "}";
+			echo "</script>";
+			
+			if (strpos($_SERVER['REQUEST_URI'],'wp-login') === false) //we are not on the login page, so start the ajax request to check the session state
+            {
+            	echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script><script>";
+            	echo "if(typeof ajaxCheckForSessionState == 'function')";
+				echo "{";
+				echo "	checkSessionStateTimerId = window.setInterval(function(){ajaxCheckForSessionState()}, timeTillAjaxSessionStateCheck);";
+				echo "}";
+				echo "</script>";
+            } //else start it in the secsign_custom_login_form hook, because we are moving parts in the DOM tree around that would otherwise end in evaluating the js call two times
         }
     }
     

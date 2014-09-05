@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
-Tested up to: 3.9.1
+Tested up to: 4.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -13,10 +13,16 @@ Use the SecSign ID two-factor authentication on your WordPress site to enable ea
 
 SecSign ID - The mobile way to log into web sites
 
+
+SecSign ID is a plugin for real two-factor authentication (2FA) for Wordpress sites. 2FA adds another layer of security to your website by using a second token. In this case the physical token is your smartphone. 
+If you seek for more information about about two-factor authentication have a look at [www.secsign.com](https://www.secsign.com/two-factor-authentication/).
+
+
 * Integrate SecSign ID into your own WordPress site in less than one minute. (There are also APIs for PHP and Java.)
-* You and your users can also use SecSign ID to visit securely other web sites (e.g. [Portal.SecSign.com](https://portal.secsign.com) for truly professional messaging and cloud sharing.)
+* You and your users can also use SecSign ID to visit securely other web sites (e.g. [portal.secsign.com](https://portal.secsign.com) for truly professional messaging and cloud sharing.)
 * This service is free for users and web site owners and free of advertising - no matter how many users the web site has.
 * You can also integrate SecSign ID as in-house solution into your existing infrastructure (on request with licensed service and maintenance contract)
+
 
 [youtube http://www.youtube.com/watch?v=DNjrbEuMB7Y]
 
@@ -35,6 +41,8 @@ Technical details (only for experts):
 * Private keys are never transmitted to the authentication server
 * High availability through redundant remote failover servers
 * Multi-tier high security architecture with multiple firewalls and protocol filters
+
+More information at [www.secsign.com](https://www.secsign.com/security-id/).
 
 SecSign ID in action:
 
@@ -112,6 +120,11 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 3. If your SecSign ID is not associated with a WordPress username, you can create one or assign the SecSign ID to an existing user.
 
 == Changelog ==
+= 1.0.6 =
+* Fixed a problem with some redirect urls
+* The login will now automatically continue after you selected the access pass on your smartphone. No need to click the OK button.
+* Added new installer icons
+* Fixed a problem on multisites which could allow a password-based login, although the password-based login was deactivated for this user.
 
 = 1.0.5 =
 * Integration in wp-login.php page
@@ -120,10 +133,10 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 
 = 1.0.4 =
 * allowing wordpress installations on nonstandard ports
-* added new PHP API
+* added new SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
 
 = 1.0.3 =
-* added new PHP API
+* added new SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
 * fixed wpdb::prepare() warning
 
 = 1.0.2 =
