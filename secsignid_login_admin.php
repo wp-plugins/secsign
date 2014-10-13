@@ -1,6 +1,6 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.5 2014/07/07 14:43:32 jwollner Exp $
+// $Id: secsignid_login_admin.php,v 1.6 2014/10/13 12:48:13 titus Exp $
 
     // for all hooks, see http://adambrown.info/p/wp_hooks
     
@@ -32,9 +32,11 @@
                                               array(
                                                     array(
                                                           'name'    => 'secsignid_service_name', 
-                                                          'default' => home_url(), 
+                                                          'default' => site_url(), 
                                                           'label'   => __('Service address', $secsignid_login_text_domain),  
                                                           'desc'	=> __('The service address is displayed during authentication on the smartphone of the user. It should match the URL of your WordPress site.', $secsignid_login_text_domain)
+                                                          //'desc'	=> __('The service address is displayed during authentication on the smartphone of the user.', $secsignid_login_text_domain),
+                                                          //'editable' => false
                                                           )
                                                     )
                                               ),

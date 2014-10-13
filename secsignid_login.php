@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0.6
+Version: 1.0.7
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.21 2014/09/05 10:15:05 jwollner Exp $
+// $Id: secsignid_login.php,v 1.24 2014/10/13 13:56:20 titus Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -61,18 +61,36 @@ Author URI: http://www.secsign.com
 			if (get_option('secsignid_show_on_login_page'))
 			{
 				echo <<<SECSIGNCSS
-				<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-				<script>
+				<script type="text/javascript">
+					window.wp_attempt_focus = function(args){
+					}
+					
+					for(var timerId = 1; timerId < 5000; timerId++){
+						clearTimeout(timerId);
+					}
+				</script>
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+				<script type="text/javascript">
 					$(document).ready(function(){
-						if($("#login .message").length > 0)
+						// switch order of normal login fields and the secsign id block
+						if($("#login .message").length > 0){
 							$("#secsignid-login").insertBefore($("#login .message"));
-						else
+						} else {
 							$("#secsignid-login").insertBefore($("#loginform"));
+						}
 						
-						if(typeof ajaxCheckForSessionState == 'function')
-						{
+						if(typeof ajaxCheckForSessionState == 'function'){
 							checkSessionStateTimerId = window.setInterval(function(){ajaxCheckForSessionState()}, timeTillAjaxSessionStateCheck);
 						}
+						
+						// try to get focus from normal input field
+						setTimeout( function(){								
+							try {
+								$("#secsignid").focus();
+								$("#secsignid").select();
+							} catch(ex) {
+							}
+						}, 100);
 					});
 				</script>    
 				<style type='text/css'>
@@ -499,44 +517,41 @@ SECSIGNCSS;
 						// contact secsign id server and request auth session
 						try
 						{
-							$secSignIDApi          = get_secsignid_server_instance();
-							$secsignid_service_name   = get_option('secsignid_service_name');
+							$secSignIDApi          		= get_secsignid_server_instance();
+							$secsignid_service_address  = site_url();
+							$secsignid_service_name   	= get_option('secsignid_service_name');
+							
 							if(empty($secsignid_service_name)){
 								$secsignid_service_name = home_url();
 							}
-							if (strncmp($secsignid_service_name, "https://", 8)== 0)
+							if (strncmp($secsignid_service_name, "https://", 8)== 0) {
 								$secsignid_service_name = substr($secsignid_service_name, 8);
-							if (strncmp($secsignid_service_name, "http://", 7)== 0)
+							}
+							if (strncmp($secsignid_service_name, "http://", 7)== 0) {
 								$secsignid_service_name = substr($secsignid_service_name, 7);
+							}
 
 					
 							// request auth session
-							$authsession = $secSignIDApi->requestAuthSession($secsignid, $secsignid_service_name, get_option('secsignid_service_name'));
+							$authsession = $secSignIDApi->requestAuthSession($secsignid, $secsignid_service_name, $secsignid_service_address);
 					
 							// got auth session
-							if(isset($authsession))
-							{                            
+							if(isset($authsession)) {                            
 								// prints a html-table with the access pass
 								print_check_accesspass($authsession);                        
-							}
-							else
-							{
+							} else {
 								print_error("Server sent empty auth session.", true);
 							}
 						}
 						catch(Exception $e)
 						{
-							if (strncmp($e->getMessage(), "500",3)==0)
-							{
+							if (strncmp($e->getMessage(), "500",3)==0) {
 								print_error("The SecSign ID does not exist. If you don't have a SecSign ID, get the free app from <a href='https://www.secsign.com' target='_blank'>SecSign.com</a> and create a new SecSign ID.",true);
-							}
-							else if (strncmp($e->getMessage(), "422",3)==0)
-							{
+							} else if (strncmp($e->getMessage(), "422",3)==0) {
 								print_error(substr($e->getMessage(),5),true);
+							} else {
+								print_error("An error occured when requesting auth session: " . $e->getMessage() , true);
 							}
-
-							else
-							print_error("An error occured when requesting auth session: " . $e->getMessage() , true);
 						}
 				}
 				else 
@@ -998,7 +1013,7 @@ SECSIGNCSS;
         
             echo "<form action='" . $form_post_url . "' method='post' style='width:90%;margin:0;padding:5%;border:none'>" . PHP_EOL;
             echo "  SecSign ID:<br>" . PHP_EOL;
-            echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' style='margin-top:5px;width:96%;float:left'/>" . PHP_EOL;
+            echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' style='margin:5px 0px 5px 3%;width:97%;float:left'/>" . PHP_EOL;
             echo "  <button type ='submit' name='login' value='1' style='width:70px;min-height:25px;'>Login</button> <span style='font-size:80%;position:relative;left:40px;'><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a></span>" . PHP_EOL;
             echo "</form>";
         }
@@ -1045,12 +1060,13 @@ $css = <<<ENDCSS
 					
 					table.secsignid td input {
 						margin:10px 0px;
-						font-size: 24px;
-						padding: 3px;
+						/*font-size: 24px;*/
+						/*padding: 3px;*/
 						background: none repeat scroll 0% 0% #FBFBFB;
 						position:relative;
 						display:block;
 						width:100%;
+						clear:both;
 					}
 </style>
 ENDCSS;
@@ -1067,7 +1083,7 @@ ENDCSS;
             	//echo "  <tr><td>E-Mail:</td><td><input id='wp-email' name='wp-email' type='text' size='15' maxlength='30' /></td></tr></table>" . PHP_EOL;
             	echo "</table>";
             	echo "<input type='hidden' name='secsignid' value='" . $_POST['secsignid'] . "' />" . PHP_EOL;
-            	echo "  <center><button style='margin-top:10px;font-size:110%;' type ='submit' name='newaccount' value='1'>Create new account</button></center>" . PHP_EOL;
+            	echo "  <center><button style='margin-top:10px;padding:8px 4px;' type ='submit' name='newaccount' value='1'>Create new account</button></center>" . PHP_EOL;
             	
             }
             echo "</form>";
@@ -1081,7 +1097,7 @@ ENDCSS;
             	echo "  <table class='secsignid'><tr><td>Username:</td></tr><tr><td><input id='wp-username' name='wp-username' type='text' size='15' maxlength='30' /></td></tr>" . PHP_EOL;
             	echo "  <tr><td>Password:</td></tr><tr><td><input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' /></td></tr></table>" . PHP_EOL;
             	echo "<input type='hidden' name='secsignid' value='" . $_POST['secsignid'] . "' />" . PHP_EOL;
-            	echo "  <center><button style='margin-top:10px;font-size:110%;' type ='submit' name='existingaccount' value='1'>Assign to existing account</button></center> <br />" . PHP_EOL;
+            	echo "  <center><button style='margin-top:10px;padding:8px 4px;' type ='submit' name='existingaccount' value='1'>Assign to existing account</button></center> <br />" . PHP_EOL;
             	echo "</form>";
             }
             secsignid_login_hide_wp_login();

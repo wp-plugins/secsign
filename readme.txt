@@ -118,8 +118,17 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 1. This is the login form in which you enter your SecSign ID shown in the smartphone app.
 2. You will be shown an access pass. Tab on the matching one on your phone.
 3. If your SecSign ID is not associated with a WordPress username, you can create one or assign the SecSign ID to an existing user.
+4. The SecSign ID login form at the admin panel login page.
+5. Again you will be shown an access pass. Tab on the matching one on your phone.
+6. The options for the SecSign ID plugin. You can choose a service name which is shown to a user on his or her smartphone and the assignments between a wordpress user and a SecSign ID.
+7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+= 1.0.7 =
+* When SecSign ID plugin is enabled the focus is set to secsign id input field at wp-login.php.
+* CSS corrections,
+* Added new screenshots for the description.
+
 = 1.0.6 =
 * Fixed a problem with some redirect urls
 * Use of SecSign ID JS API [GitHub - ](https://github.com/SecSign/secsign-js-api) for automatically login
