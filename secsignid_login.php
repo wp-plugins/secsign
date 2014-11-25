@@ -1,13 +1,14 @@
 <?php
 /*
 Plugin Name: SecSign
-Version: 1.0.7
+Plugin URI: https://www.secsign.com/add-it-to-your-website/
+Version: 1.1
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.24 2014/10/13 13:56:20 titus Exp $
+// $Id: secsignid_login.php,v 1.26 2014/11/25 14:21:16 jwollner Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -1010,12 +1011,45 @@ SECSIGNCSS;
         function print_login_form()
         {
             $form_post_url = secsign_id_login_post_url();
-        
-            echo "<form action='" . $form_post_url . "' method='post' style='width:90%;margin:0;padding:5%;border:none'>" . PHP_EOL;
-            echo "  SecSign ID:<br>" . PHP_EOL;
-            echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' style='margin:5px 0px 5px 3%;width:97%;float:left'/>" . PHP_EOL;
-            echo "  <button type ='submit' name='login' value='1' style='width:70px;min-height:25px;'>Login</button> <span style='font-size:80%;position:relative;left:40px;'><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a></span>" . PHP_EOL;
-            echo "</form>";
+
+
+            $css = <<<ENDCSS
+<style type='text/css'>
+        .widget-area #secsignid_loginform {
+            margin:5px 0px 5px 0;width:100%;
+        }
+
+        .widget-area #secsignid_loginform p{
+            margin:3px 0px 3px 0;
+            padding: 0;
+        }
+
+        .widget-area #secsignid_loginform button{
+        width: 100%;
+min-height: 25px;
+margin: 5px 0;
+        }
+
+        .widget-area #secsignid{
+        width:100%;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
+        }
+
+        .login .login_wrapper{
+        padding: 20px;
+        }
+</style>
+ENDCSS;
+            echo $css;
+
+            echo "<form id='secsignid_loginform' action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;border:none'>" . PHP_EOL;
+            echo "  <div class='login_wrapper'><p>SecSign ID:</p>" . PHP_EOL;
+            echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' />" . PHP_EOL;
+            echo "  <button type ='submit' name='login' value='1' class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>" . PHP_EOL;
+            echo "<div style='clear:both;'></div></div></form>";
         }
     }
 
@@ -1111,6 +1145,7 @@ ENDCSS;
          * prints out the access pass and the check form
          *
          * @param AuthSession $authsession the authentication session including the access pass
+         * @throws Exception
          */
         function print_check_accesspass($authsession)
         {
@@ -1118,6 +1153,55 @@ ENDCSS;
             {
                 throw new Exception("Cannot show access pass, given \$authsession is either null or not an instance of AuthSession.");
             }
+
+
+
+           echo "
+<style type='text/css'>
+ #secsign_accesspass_form button{
+        width:90px;
+
+    }
+
+    .secsign_accesspass_big {
+    display:block;
+background:url(" . get_site_url() . "/wp-content/plugins/secsign/accesspass_bg.png) transparent no-repeat scroll left top;
+    background-size:155px 206px;
+    width:155px;
+    height:206px;
+    vertical-align:middle;
+    margin:0px auto;
+    }
+
+    .secsign_accesspass_small {
+    display:block;
+    background: white;
+    width:100%;
+    margin:0px auto;
+    }
+
+    .secsign_accesspass_img_big{
+    position:relative;
+    width:80px;
+    height:80px;
+    left:35px;
+    top:90px;
+    box-shadow:0px 0px 0px #FFF;
+    }
+
+    .secsign_accesspass_img_small{
+    position:relative;
+    width:100%;
+    }
+
+
+    </style>
+       ";
+
+
+
+//            if secsign_accesspass_form < 300
+
         
             global $check_auth_button;
             global $cancel_auth_button;
@@ -1125,7 +1209,7 @@ ENDCSS;
             $form_post_url = secsign_id_login_post_url();
         
             // show access pass and print all information which is need to verify auth session
-            echo "<form action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;float:left;display:block;position:relative;border:none'>". PHP_EOL;
+            echo "<form id='secsign_accesspass_form' action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;float:left;display:block;position:relative;border:none'>". PHP_EOL;
         
             // all information which is need to get auth session status if user hit 'OK' button
             echo "<input type='hidden' name='requestid' value='" . $authsession->getRequestID() . "' />" . PHP_EOL;
@@ -1137,47 +1221,55 @@ ENDCSS;
 
             $mapped_user = get_wp_user($authsession->getSecSignID());
             echo "<input type='hidden' name='mapped_wp_user' value='" . ($mapped_user != null ? $mapped_user->user_login : "null") . "' />" . PHP_EOL;
-            
-            // table whith access pass and two button for 'OK' and 'Cancel'
-            echo "<table style='width:100%;height:80%;display:block;position:relative;float:left'>" . PHP_EOL;
-            echo "  <tr style='margin:0px;padding:0px;'>" . PHP_EOL;
-            echo "      <td colspan='2' style='text-align:center;padding:0;margin:0px;'>" . PHP_EOL;
-            echo "          <b>Access Pass for " . $authsession->getSecSignID() . "</b>" . PHP_EOL;
-            echo "      </td>" . PHP_EOL;
-            echo "  </tr>" . PHP_EOL;
-            echo "  <tr style='margin:0px;padding:0px;'>" . PHP_EOL;
-            echo "      <td colspan='2' style='margin:0px;padding:20px 0px 0px 0px;'>" . PHP_EOL;
-            echo "<div style='display:block;background:url(" . get_site_url() . "/wp-content/plugins/secsign/accesspass_bg.png) transparent no-repeat scroll left top;background-size:155px 206px;width:155px;height:206px;vertical-align:middle;margin:0px auto;'>" . PHP_EOL;
-            echo "<img style='position:relative;width:80px;height:80px;left:35px;top:90px;box-shadow:0px 0px 0px #FFF;' src=\"data:image/png;base64," . $authsession->getIconData() . "\">" . PHP_EOL;
-            echo "</div><br /><br />" . PHP_EOL;
-            echo "      </td>" . PHP_EOL;
-            echo "  </tr>" . PHP_EOL;
 
-            echo "  <tr style='margin:0px;padding:0px;'>" . PHP_EOL;
-            echo "      <td colspan='2' style='margin:0px;padding:0px;'>" . PHP_EOL;
-            echo "          <div style='width:90%;padding:5%;'>Please verify the access pass using your smartphone.<br /><br /></div>" . PHP_EOL;
-            echo "      </td>" . PHP_EOL;
-            echo "  </tr>" . PHP_EOL;
-
-            echo "  <tr style='margin:0px;padding:0px;border:none;'>" . PHP_EOL;
-            echo "      <td align='left' style='margin:0px;padding:10px 0px;border-right:none;'>" . PHP_EOL;
-        
-            // cancel button
-            echo "          <button type ='submit' name='" . $cancel_auth_button . "' value='1' style='width:100px;min-height:25px;'>Cancel</button>" . PHP_EOL;
-            echo "      </td>" . PHP_EOL;
-            echo "      <td align='right' style='margin:0px;padding:10px 0px;border-left:none;'>" . PHP_EOL;
-        
-            // ok button which will trigger auth status check
-            echo "          <button type ='submit' name='" . $check_auth_button . "' value='1' style='width:100px;min-height:25px;'>OK</button>" . PHP_EOL;
-        
-            echo "      </td>" . PHP_EOL;
-            echo "  </tr>" . PHP_EOL;
-            echo "</table>" . PHP_EOL;
-        
+            echo "<p style='text-align: center'><b>Access Pass for " . $authsession->getSecSignID() . "</b></p>" . PHP_EOL;
+            echo "<div id='secsign_accesspass' class='secsign_accesspass_big'>" . PHP_EOL;
+            echo "<img id='secsign_accesspass_img' class='secsign_accesspass_img_big' src=\"data:image/png;base64," . $authsession->getIconData() . "\">" . PHP_EOL;
+            echo "</div>";
+            echo "<p style='text-align: center'>Please verify the access pass using your smartphone.</p>" . PHP_EOL;
+            echo "<div style='margin: 5px auto; text-align: center;'><div id='secsign_button_wrapper' style='display: inline-block;'>";
+            echo "<button type ='submit' name='" . $cancel_auth_button . "' value='1' style='margin: 5px 0;min-height:25px;'>Cancel</button>" . PHP_EOL;
+            echo "<button type ='submit' name='" . $check_auth_button . "' value='1' style='margin: 5px 0;min-height:25px;'>OK</button>" . PHP_EOL;
+            echo "</div></div>";
             // end of form
             echo "</form><div style='display:block;clear:both'></div>". PHP_EOL;
             secsignid_login_hide_wp_login();
             secsignid_login_print_ajax_check($authsession);
+
+            echo '
+            <script type="text/javascript">
+
+function responsive() {
+          var width = document.getElementById("secsign_accesspass_form").offsetWidth;
+        if(width<= 220){
+            $("#secsign_accesspass_form button").css("width", "100%");
+            $("#secsign_button_wrapper").css("width", "100%");
+        } else {
+            $("#secsign_accesspass_form button").css("width", "90px");
+            $("#secsign_button_wrapper").css("width", "initial");
+        }
+
+        if(width<= 160){
+            $("#secsign_accesspass").removeClass("secsign_accesspass_big");
+            $("#secsign_accesspass").addClass("secsign_accesspass_small");
+            $("#secsign_accesspass_img").removeClass("secsign_accesspass_img_big");
+            $("#secsign_accesspass_img").addClass("secsign_accesspass_img_small");
+        } else {
+            $("#secsign_accesspass").removeClass("secsign_accesspass_small");
+            $("#secsign_accesspass").addClass("secsign_accesspass_big");
+            $("#secsign_accesspass_img").removeClass("secsign_accesspass_img_small");
+            $("#secsign_accesspass_img").addClass("secsign_accesspass_img_big");
+        }
+}
+$( window ).resize(function() {
+  responsive();
+});
+
+responsive();
+</script>
+
+
+            ';
         }
     }
     
