@@ -58,7 +58,7 @@ Just type in your user short name (for instance at [SecSign Portal](https://port
 
 Despite its simplicity SecSign ID works with comprehensive and strongest security technologies. The solution we offer is unique and does not submit any confidential data through a web browser.
 
-We have a noticeable background of more than 14 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
+We have a noticeable background of more than 16 years in developing strong cryptography and highly sophisticated security software products for governments, public institutions and private companies.
 
 Visit our official site to get the app and more information: [https://www.secsign.com](https://www.secsign.com)
 
@@ -124,6 +124,9 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+= 1.2 =
+* Fixed compatibility issue with WordPress Download Manager Plugin 2.6.96 and newer.
+
 = 1.1 =
 * Responsive Design
 * Code Review

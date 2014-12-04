@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.1
+Version: 1.2
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.26 2014/11/25 14:21:16 jwollner Exp $
+// $Id: secsignid_login.php,v 1.2 2014/12/04 11:31:01 jwollner Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -511,7 +511,7 @@ SECSIGNCSS;
 						print_error("An error occured when checking status of ticket: " . $e->getMessage(), true);
 					}   
 				}
-				else if(isset($_POST['secsignid']) && isset($_POST['login']))
+				else if(isset($_POST['secsignid']) && isset($_POST['login-secsign']))
 				{
 						$secsignid = $_POST['secsignid'];
 						// show access pass
@@ -1048,7 +1048,7 @@ ENDCSS;
             echo "<form id='secsignid_loginform' action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;border:none'>" . PHP_EOL;
             echo "  <div class='login_wrapper'><p>SecSign ID:</p>" . PHP_EOL;
             echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' />" . PHP_EOL;
-            echo "  <button type ='submit' name='login' value='1' class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>" . PHP_EOL;
+            echo "  <button type ='submit' name='login-secsign' value='1' class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>" . PHP_EOL;
             echo "<div style='clear:both;'></div></div></form>";
         }
     }

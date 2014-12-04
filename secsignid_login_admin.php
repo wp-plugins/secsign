@@ -1,6 +1,6 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.6 2014/10/13 12:48:13 titus Exp $
+// $Id: secsignid_login_admin.php,v 1.1 2014/12/01 14:33:28 titus Exp $
 
     // for all hooks, see http://adambrown.info/p/wp_hooks
     
