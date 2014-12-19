@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, 2 factor authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
-Tested up to: 4.0.1
+Tested up to: 4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -73,6 +73,10 @@ and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 * Search for "SecSign" and click "Install Now" or click on "Upload" and select the downloaded zip archive.
 * Activate the plugin in the "Installed Plugins" list.
 
+= Note =
+
+The SecSign ID WordPress plugin uses the [SecSign ID API](https://github.com/SecSign/secsign-php-api). The API requests from the ID server a so-called access pass (a session and a pass icon) which must be confirmed on the smartphone. In order to enable the plugin to establish a connection to the ID server, the curl packet (http://php.net/manual/de/book.curl.php) must be installed for PHP, and the web server on which the WordPress site is running must be able to reach the ID server under https://httpapi.secsign.com. Otherwise, you have to make changes in the settings for firewall and/or proxy.
+
 = Add the Login Widget =
 
 * You can add the SecSignID login widget to your site to allow the login on, for example, the side menu.
@@ -124,6 +128,11 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.3 =
+* Differ between error message and user formatted message in function print_error(...)
+* Added info about installations prerequisites in wordpress readme.txt
+
 = 1.2 =
 * Fixed compatibility issue with WordPress Download Manager Plugin 2.6.96 and newer.
 
@@ -141,7 +150,7 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 
 = 1.0.6 =
 * Fixed a problem with some redirect urls
-* Use of SecSign ID JS API [GitHub - ](https://github.com/SecSign/secsign-js-api) for automatically login
+* Use of SecSign ID JS API [GitHub](https://github.com/SecSign/secsign-js-api) - to login an user automatically 
 * The login will now automatically continue after you selected the access pass on your smartphone. No need to click the OK button.
 * Added new installer icons
 * Fixed a problem on multisites which could allow a password-based login, although the password-based login was deactivated for this user.

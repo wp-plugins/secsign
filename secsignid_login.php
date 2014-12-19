@@ -8,7 +8,7 @@ Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.2 2014/12/04 11:31:01 jwollner Exp $
+// $Id: secsignid_login.php,v 1.3 2014/12/16 15:05:18 titus Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -433,7 +433,7 @@ SECSIGNCSS;
 						if( !empty($errors))
 						{
 							echo "<span style='color:#FF0000;'>";
-							print_error($errors);
+							print_error($errors, null);
 							echo "</span><br />";
 						}
 						if( !empty($messages))
@@ -447,7 +447,7 @@ SECSIGNCSS;
 				// check if secsign id login variables are set
 				else if((! $found_login_errors) && isset($_POST['requestid']) && isset($_POST['authsessionid']))
 				{
-					// check or cancel ticket status
+					// check or cancelauth session status
 					try
 					{
 						$authsession = new AuthSession();
@@ -467,7 +467,7 @@ SECSIGNCSS;
 					
 						if(isset($_POST[$check_auth_button]))
 						{
-							// ticket status already checked in hooked method secsign_id_check_ticket()
+							//auth session status already checked in hooked method secsign_id_check_ticket()
 						
 							if(($secsignid_login_auth_session_status == AuthSession::PENDING) || ($secsignid_login_auth_session_status == AuthSession::FETCHED))
 							{
@@ -477,29 +477,29 @@ SECSIGNCSS;
 							{
 								if($secsignid_login_auth_session_status == AuthSession::EXPIRED)
 								{
-									print_error("Access Pass expired...", true);
+									print_error("Access Pass expired.", null, true);
 								}
 								else if($secsignid_login_auth_session_status == AuthSession::SUSPENDED)
 								{
-									print_error("The server suspended this session.", true);
+									print_error("The server suspended this session.", null, true);
 								}
 								else if($secsignid_login_auth_session_status == AuthSession::INVALID)
 								{
-									print_error("This session has become invalid.", true);
+									print_error("This session has become invalid.", null, true);
 								}
 								else if($secsignid_login_auth_session_status == AuthSession::CANCELED)
 								{
-									print_error("The server canceled this session.", true);
+									print_error("The server canceled this session.", null, true);
 								}
 								else if($secsignid_login_auth_session_status == AuthSession::DENIED)
 								{
-									print_error("Authentication has been denied...", true);
+									print_error("Authentication has been denied.", null, true);
 								}
 							}
 						}
 						else 
 						{   
-							// cancel ticket
+							// cancelauth session
 							$secSignIDApi->cancelAuthSession($authsession);
 						
 							// show login form
@@ -508,7 +508,9 @@ SECSIGNCSS;
 					}
 					catch(Exception $e)
 					{
-						print_error("An error occured when checking status of ticket: " . $e->getMessage(), true);
+						print_error("An error occured when checking status of authentication session: " . $e->getMessage(), 
+									"Cannot check status of authentication session.", 
+									true);
 					}   
 				}
 				else if(isset($_POST['secsignid']) && isset($_POST['login-secsign']))
@@ -541,17 +543,34 @@ SECSIGNCSS;
 								// prints a html-table with the access pass
 								print_check_accesspass($authsession);                        
 							} else {
-								print_error("Server sent empty auth session.", true);
+								print_error("Server sent empty auth session.", 
+											"Did not get authentication session. Reload page and try again later.", 
+											true);
 							}
 						}
 						catch(Exception $e)
 						{
-							if (strncmp($e->getMessage(), "500",3)==0) {
-								print_error("The SecSign ID does not exist. If you don't have a SecSign ID, get the free app from <a href='https://www.secsign.com' target='_blank'>SecSign.com</a> and create a new SecSign ID.",true);
-							} else if (strncmp($e->getMessage(), "422",3)==0) {
-								print_error(substr($e->getMessage(),5),true);
+							if (strncmp($e->getMessage(), "500", 3)==0)
+							{
+								// internal server error code is used only for the eroor of not existing ids
+								print_error("The SecSign ID does not exist. If you don't have a SecSign ID, get the free app from <a href='https://www.secsign.com' target='_blank'>SecSign.com</a> and create a new SecSign ID.", 
+											null, 
+											true);
+							} 
+							else if (strncmp($e->getMessage(), "422", 3)==0)
+							{
+								// actually this error should not be returned any more
+								// a message would look like: 
+								//
+								// 422: cannot process entity
+								print_error($e->getMessage(), 
+											"An error occured:" . substr($e->getMessage(),5),
+											true);
 							} else {
-								print_error("An error occured when requesting auth session: " . $e->getMessage() , true);
+								// general error
+								print_error("An error occured when requesting auth session: " . $e->getMessage(), 
+											"Did not get authentication session. Reload page and try again later.", 
+											true);
 							}
 						}
 				}
@@ -579,7 +598,9 @@ SECSIGNCSS;
 						}
 						catch(Exception $e)
 						{
-							print_error("An error occured while canceling auth session: " . $e->getMessage(), false);
+							print_error("An error occured while canceling auth session: " . $e->getMessage(), 
+										"Cannot cancel authentication session. No session exists.", 
+										false);
 						}
 					}
 				
@@ -588,7 +609,7 @@ SECSIGNCSS;
 						// print error codes and messages
 						if( !empty($errors))
 						{
-							print_error($errors);
+							print_error($errors, null);
 							echo "<br />";
 						}
 						if( !empty($messages))
@@ -832,7 +853,7 @@ SECSIGNCSS;
 					}
 					catch(Exception $e)
 					{
-						$errorMessage = "An error occured when checking status of ticket: " . $e->getMessage();
+						$errorMessage = "An error occured when checking status of authentication session: " . $e->getMessage();
 						add_error($errorMessage);
 					
 						$secsignid_login_auth_session_status = AuthSession::NOSTATE;
@@ -1014,7 +1035,7 @@ SECSIGNCSS;
 
 
             $css = <<<ENDCSS
-<style type='text/css'>
+\n\n<style type='text/css'>
         .widget-area #secsignid_loginform {
             margin:5px 0px 5px 0;width:100%;
         }
@@ -1041,7 +1062,7 @@ margin: 5px 0;
         .login .login_wrapper{
         padding: 20px;
         }
-</style>
+</style>\n\n
 ENDCSS;
             echo $css;
 
@@ -1049,7 +1070,13 @@ ENDCSS;
             echo "  <div class='login_wrapper'><p>SecSign ID:</p>" . PHP_EOL;
             echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' />" . PHP_EOL;
             echo "  <button type ='submit' name='login-secsign' value='1' class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>" . PHP_EOL;
-            echo "<div style='clear:both;'></div></div></form>";
+            echo "<div style='clear:both;'></div>\n</div>\n</form>\n";
+         
+			try {
+				echo "<!-- secsign id plugin version: " . get_plugin_version() . " -->\n\n";
+			} catch(Exception $e){
+					echo "<!-- error finding version: " . $e . " -->\n\n";
+			}
         }
     }
 
@@ -1134,6 +1161,8 @@ ENDCSS;
             	echo "  <center><button style='margin-top:10px;padding:8px 4px;' type ='submit' name='existingaccount' value='1'>Assign to existing account</button></center> <br />" . PHP_EOL;
             	echo "</form>";
             }
+            
+            // hide the login
             secsignid_login_hide_wp_login();
         }
     }
@@ -1391,9 +1420,15 @@ VERBATIMJS;
          * @param string $error an error message
          * @param BOOL $print_login_form Optional. if true, it prints the login form
          */
-        function print_error($error, $print_login_form = false)
+        function print_error($error, $msg, $print_login_form = false)
         {
-            echo '<div class="login_error">' . apply_filters('login_errors', $error) . '</div>' . PHP_EOL;
+        	if($msg == null){
+        		$msg = $error;
+        	} else {
+	        	error_log($error, 0);
+	        }
+	        
+            echo '<div class="login_error">' . apply_filters('login_errors', $msg) . '</div>' . PHP_EOL;
 
             if($print_login_form){
                 echo '<br />';
@@ -1401,4 +1436,30 @@ VERBATIMJS;
             }
         }
     }
+    
+    if(! (function_exists('get_plugin_version')))
+    {
+    	/**
+    	 * Gets the version of this plugin. It propably costs some time to parse the plugin file. But it is better to hve another variable to keep updated.
+    	 */
+    	function get_plugin_version() {
+    		/*
+	    	if(! function_exists("get_plugins")){
+	   	     	require_once(ABSPATH . "wp-admin/includes/plugin.php");
+	  	  	}
+	    
+	    	$plugin_folder = get_plugins("/" . plugin_basename(dirname( __FILE__ )));
+	    	$plugin_file = basename(( __FILE__ ));
+	    
+	    	return $plugin_folder[$plugin_file]["Version"];
+	    	*/
+	    
+	    	if(! function_exists("get_plugin_data")){
+	        	require_once(ABSPATH . "wp-admin/includes/plugin.php");
+	    	}
+	    
+	    	$plugin_data = get_plugin_data(__FILE__);
+        	return $plugin_data["Version"];
+        }
+	}
 ?>
