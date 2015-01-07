@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.3
+Version: 1.4
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.3 2014/12/16 15:05:18 titus Exp $
+// $Id: secsignid_login.php,v 1.7 2015/01/07 09:17:24 jwollner Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -61,7 +61,7 @@ Author URI: http://www.secsign.com
 		{
 			if (get_option('secsignid_show_on_login_page'))
 			{
-				echo <<<SECSIGNCSS
+				echo <<<SECSIGNJS
 				<script type="text/javascript">
 					window.wp_attempt_focus = function(args){
 					}
@@ -105,9 +105,10 @@ Author URI: http://www.secsign.com
 						margin-bottom:30px;
 					}
 				</style>;
-SECSIGNCSS;
+SECSIGNJS;
 
 				echo "<div id='secsignid-login'>";
+				// this cannot be put into a variable. the function will echo html code itself.
 				secsign_id_login(array());
 				echo "</div>";
 			}
@@ -626,20 +627,26 @@ SECSIGNCSS;
 			else 
 			{
 				echo "<form>";
+				
 				// a user is logged in...
 				echo $before_title . "SecSign ID:<br>". $after_title . "Welcome " . $current_user->user_login . "...<br><br>";
 
 				// show a logout link and redirect to wordpress blog
 				$redirectAfterLogoutTo = site_url();
-				echo '<a href="' . wp_logout_url($redirectAfterLogoutTo) . '">Logout</a>';
-				echo "</form>";
-				if (strpos($_SERVER['REQUEST_URI'],'interim-login=1') !== false)
+				echo "<a href='" . wp_logout_url($redirectAfterLogoutTo) . "'>Logout</a>\n</form>";
+				
+				if (strpos($_SERVER['REQUEST_URI'], 'interim-login=1') !== false)
 				{
-					echo "<script>";
-					echo "$(document).ready(function(){";
-					echo "if($('#login .message').length > 0) $('#login .message').hide();";
-					echo "$('#loginform').hide();";
-					echo "});</script>";
+					echo <<<INTERIM_LOGIN
+						<script>
+							$(document).ready(function(){
+								if($("#login .message").length > 0) {
+									$("#login .message").hide();
+								}
+								$("#loginform").hide();
+							});
+						</script>
+INTERIM_LOGIN;
 				}
 			}
 		
@@ -1033,45 +1040,62 @@ SECSIGNCSS;
         {
             $form_post_url = secsign_id_login_post_url();
 
+            echo <<<LOGIN_CSS_JS
+				
+				<style type='text/css'>
+		        	.widget-area #secsignid_loginform {
+	            		margin:5px 0px 5px 0;width:100%;
+        			}
 
-            $css = <<<ENDCSS
-\n\n<style type='text/css'>
-        .widget-area #secsignid_loginform {
-            margin:5px 0px 5px 0;width:100%;
-        }
+        			.widget-area #secsignid_loginform p{
+                    	margin:3px 0px 3px 0;
+                    	padding: 0;
+                	}
 
-        .widget-area #secsignid_loginform p{
-            margin:3px 0px 3px 0;
-            padding: 0;
-        }
+                	.widget-area #secsignid_loginform button{
+                		width: 100%;
+						min-height: 25px;
+						margin: 5px 0;
+			        }
 
-        .widget-area #secsignid_loginform button{
-        width: 100%;
-min-height: 25px;
-margin: 5px 0;
-        }
+                	.widget-area #secsignid{
+        				width:100%;
+                		-webkit-box-sizing: border-box;
+               		 	-moz-box-sizing: border-box;
+                		-ms-box-sizing: border-box;
+                		box-sizing: border-box;
+                	}
 
-        .widget-area #secsignid{
-        width:100%;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        -ms-box-sizing: border-box;
-        box-sizing: border-box;
-        }
+        			.login .login_wrapper{
+				        padding: 20px;
+        			}
+			</style>
 
-        .login .login_wrapper{
-        padding: 20px;
-        }
-</style>\n\n
-ENDCSS;
-            echo $css;
+			<script type="text/javascript">
+				function handleSecSignIdLoginButtons() {
+    	        	document.getElementById('secsignid_login').disabled=true;
+            	
+	            	document.forms['secsignid_loginform'].submit();
 
-            echo "<form id='secsignid_loginform' action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;border:none'>" . PHP_EOL;
-            echo "  <div class='login_wrapper'><p>SecSign ID:</p>" . PHP_EOL;
-            echo "  <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' />" . PHP_EOL;
-            echo "  <button type ='submit' name='login-secsign' value='1' class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>" . PHP_EOL;
-            echo "<div style='clear:both;'></div>\n</div>\n</form>\n";
-         
+            		return true;
+            	}
+			</script>
+
+			<form id='secsignid_loginform' action='{$form_post_url}' method='post' style='width:100%;margin:0;padding:0;border:none'>
+            	<div class='login_wrapper'>
+            		<p>SecSign ID:</p>
+		            <input id='secsignid' name='secsignid' type='text' size='30' maxlength='30' />
+        		    <input id='login-secsign' name='login-secsign' type='hidden' value='1'/>
+		            <button type ='submit' 
+		            		id='secsignid_login' 
+		            		name='secsignid_login' 
+		            		onclick='return handleSecSignIdLoginButtons();' 
+		            		class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>
+		            <div style='clear:both;'></div>
+		        </div>
+            </form>
+LOGIN_CSS_JS;
+
 			try {
 				echo "<!-- secsign id plugin version: " . get_plugin_version() . " -->\n\n";
 			} catch(Exception $e){
@@ -1088,8 +1112,8 @@ ENDCSS;
         function print_wpuser_mapping_form()
         {
             $form_post_url = secsign_id_login_post_url();
-$css = <<<ENDCSS
-<style type='text/css'>																													
+			echo <<<ENDCSS
+				<style type='text/css'>																													
 					table.secsignid,
 					table.secsignid tbody,
 					table.secsignid tr,
@@ -1121,45 +1145,77 @@ $css = <<<ENDCSS
 					
 					table.secsignid td input {
 						margin:10px 0px;
-						/*font-size: 24px;*/
-						/*padding: 3px;*/
+						font-size: 24px;
+						padding: 3px;
 						background: none repeat scroll 0% 0% #FBFBFB;
 						position:relative;
 						display:block;
 						width:100%;
 						clear:both;
 					}
-</style>
+				</style>
 ENDCSS;
+
+            echo "<form action='" . $form_post_url . "' method='post'>\n  There is no user assigned to your SecSign ID on \"" . get_bloginfo('name') . "\".     \n<br><br>";
             
-            echo $css;
-            
-            echo "<form action='" . $form_post_url . "' method='post'>" . PHP_EOL;
-            echo "  There is no user assigned to your SecSign ID on \"" . get_bloginfo('name') . "\".<br><br>";
             if (get_option('secsignid_allow_account_creation'))
             {
-            	echo "  <table class='secsignid'>" . PHP_EOL;
-            	echo "  <tr><td>Username:</td></tr><tr><td><input id='wp-username' name='wp-username' value='" . $_POST['secsignid'] . "' type='text' size='15' maxlength='30' /></td></tr>" . PHP_EOL;
-            	//echo "  <tr><td>Password:</td><td><input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' /></td></tr>" . PHP_EOL;
-            	//echo "  <tr><td>E-Mail:</td><td><input id='wp-email' name='wp-email' type='text' size='15' maxlength='30' /></td></tr></table>" . PHP_EOL;
-            	echo "</table>";
-            	echo "<input type='hidden' name='secsignid' value='" . $_POST['secsignid'] . "' />" . PHP_EOL;
-            	echo "  <center><button style='margin-top:10px;padding:8px 4px;' type ='submit' name='newaccount' value='1'>Create new account</button></center>" . PHP_EOL;
-            	
+            	echo <<<USER_CREATION
+						<table class='secsignid'>
+							<tr>
+								<td>Username:</td>
+							</tr>
+							<tr>
+								<td>
+									<input id='wp-username' name='wp-username' value='{$_POST['secsignid']}' type='text' size='15' maxlength='30' />
+								</td>
+							</tr>
+							<!-- <tr><td>Password:</td><td><input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' /></td></tr> -->
+							<!-- <tr><td>E-Mail:</td><td><input id='wp-email' name='wp-email' type='text' size='15' maxlength='30' /></td></tr> -->
+						</table>
+						<input type='hidden' name='secsignid' value='{$_POST['secsignid']}' />
+						<center>
+							<button style='margin-top:10px;padding:8px 4px;' type ='submit' name='newaccount' value='1'>Create new account</button>
+						</center>
+USER_CREATION;
             }
+            
             echo "</form>";
+            
             if (get_option('secsignid_allow_account_creation') && get_option('secsignid_allow_account_assignment'))
             {
             	echo "  <br><center style='font-size:150%;'>--- or ---</center><br>";
             }
+            
             if (get_option('secsignid_allow_account_assignment'))
             {
-            	echo "<form action='" . $form_post_url . "' method='post'>" . PHP_EOL;
-            	echo "  <table class='secsignid'><tr><td>Username:</td></tr><tr><td><input id='wp-username' name='wp-username' type='text' size='15' maxlength='30' /></td></tr>" . PHP_EOL;
-            	echo "  <tr><td>Password:</td></tr><tr><td><input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' /></td></tr></table>" . PHP_EOL;
-            	echo "<input type='hidden' name='secsignid' value='" . $_POST['secsignid'] . "' />" . PHP_EOL;
-            	echo "  <center><button style='margin-top:10px;padding:8px 4px;' type ='submit' name='existingaccount' value='1'>Assign to existing account</button></center> <br />" . PHP_EOL;
-            	echo "</form>";
+	            echo <<<ACCOUNT_ASSIGNMENT
+						<form action='{$form_post_url}' method='post'>
+							<table class='secsignid'>
+								<tr>
+									<td>Username:</td>
+								</tr>
+								<tr>
+									<td>
+										<input id='wp-username' name='wp-username' type='text' size='15' maxlength='30' />
+									</td>
+								</tr>
+								<tr>
+									<td>Password:</td>
+								</tr>
+								<tr>
+									<td>
+										<input id='wp-password' name='wp-password' type='password' size='15' maxlength='30' />
+									</td>
+								</tr>
+							</table>
+							<input type='hidden' name='secsignid' value='{$_POST['secsignid']}' />
+							<center>
+								<button style='margin-top:10px;padding:8px 4px;' type ='submit' name='existingaccount' value='1'>Assign to existing account</button>
+							</center>
+							<br/>
+						</form>
+ACCOUNT_ASSIGNMENT;
             }
             
             // hide the login
@@ -1182,52 +1238,47 @@ ENDCSS;
             {
                 throw new Exception("Cannot show access pass, given \$authsession is either null or not an instance of AuthSession.");
             }
+			
+			$site_url = get_site_url();
+			
+           	echo <<<ACCESSPASS_CSS
+				<style type='text/css'>
+					#secsign_accesspass_form button{
+				        width:90px;
+    				}
 
+    				.secsign_accesspass_big {
+   		 				display:block;
+						background:url({$site_url}/wp-content/plugins/secsign/accesspass_bg.png) transparent no-repeat scroll left top;
+    					background-size:155px 206px;
+    					width:155px;
+    					height:206px;
+    					vertical-align:middle;
+    					margin:0px auto;
+    				}
 
+    				.secsign_accesspass_small {
+    					display:block;
+    					background: white;
+    					width:100%;
+    					margin:0px auto;
+    				}
 
-           echo "
-<style type='text/css'>
- #secsign_accesspass_form button{
-        width:90px;
+    				.secsign_accesspass_img_big{
+    					position:relative;
+    					width:80px;
+    					height:80px;
+    					left:35px;
+    					top:90px;
+    					box-shadow:0px 0px 0px #FFF;
+    				}
 
-    }
-
-    .secsign_accesspass_big {
-    display:block;
-background:url(" . get_site_url() . "/wp-content/plugins/secsign/accesspass_bg.png) transparent no-repeat scroll left top;
-    background-size:155px 206px;
-    width:155px;
-    height:206px;
-    vertical-align:middle;
-    margin:0px auto;
-    }
-
-    .secsign_accesspass_small {
-    display:block;
-    background: white;
-    width:100%;
-    margin:0px auto;
-    }
-
-    .secsign_accesspass_img_big{
-    position:relative;
-    width:80px;
-    height:80px;
-    left:35px;
-    top:90px;
-    box-shadow:0px 0px 0px #FFF;
-    }
-
-    .secsign_accesspass_img_small{
-    position:relative;
-    width:100%;
-    }
-
-
-    </style>
-       ";
-
-
+    				.secsign_accesspass_img_small{
+    					position:relative;
+   					 	width:100%;
+    				}
+				</style>
+ACCESSPASS_CSS;
 
 //            if secsign_accesspass_form < 300
 
@@ -1236,69 +1287,79 @@ background:url(" . get_site_url() . "/wp-content/plugins/secsign/accesspass_bg.p
             global $cancel_auth_button;
             
             $form_post_url = secsign_id_login_post_url();
-        
-            // show access pass and print all information which is need to verify auth session
-            echo "<form id='secsign_accesspass_form' action='" . $form_post_url . "' method='post' style='width:100%;margin:0;padding:0;float:left;display:block;position:relative;border:none'>". PHP_EOL;
-        
-            // all information which is need to get auth session status if user hit 'OK' button
-            echo "<input type='hidden' name='requestid' value='" . $authsession->getRequestID() . "' />" . PHP_EOL;
-            echo "<input type='hidden' name='secsignid' value='" . $authsession->getSecSignID() . "' />" . PHP_EOL;
-            echo "<input type='hidden' name='authsessionid' value='" . $authsession->getAuthSessionID() . "' />" . PHP_EOL;
-            echo "<input type='hidden' name='servicename' value='" . $authsession->getRequestingServiceName() . "' />" . PHP_EOL;
-            echo "<input type='hidden' name='serviceaddress' value='" . $authsession->getRequestingServiceAddress() . "' />" . PHP_EOL;
-            echo "<input type='hidden' name='authsessionicondata' value='" . $authsession->getIconData() . "' />" . PHP_EOL;
+			$mapped_user = get_wp_user($authsession->getSecSignID());
+			$mapped_user_str = ($mapped_user != null ? $mapped_user->user_login : "null");
+			
+			// show access pass and print all information which is need to verify auth session
+			// all information which is need to get auth session status if user hit 'OK' button are put into hidden fields                    
+        	echo <<<ACCESSPASS_FORM
 
-            $mapped_user = get_wp_user($authsession->getSecSignID());
-            echo "<input type='hidden' name='mapped_wp_user' value='" . ($mapped_user != null ? $mapped_user->user_login : "null") . "' />" . PHP_EOL;
+            <form id='secsign_accesspass_form' action='{$form_post_url}' method='post' style='width:100%;margin:0;padding:0;float:left;display:block;position:relative;border:none'>
+        
+            	<input type='hidden' name='requestid' value='{$authsession->getRequestID()}' />
+            	<input type='hidden' name='secsignid' value='{$authsession->getSecSignID()}' />
+            	<input type='hidden' name='authsessionid' value='{$authsession->getAuthSessionID()}' />
+            	<input type='hidden' name='servicename' value='{$authsession->getRequestingServiceName()}' />
+            	<input type='hidden' name='serviceaddress' value='{$authsession->getRequestingServiceAddress()}' />
+            	<input type='hidden' name='authsessionicondata' value='{$authsession->getIconData()}' />
 
-            echo "<p style='text-align: center'><b>Access Pass for " . $authsession->getSecSignID() . "</b></p>" . PHP_EOL;
-            echo "<div id='secsign_accesspass' class='secsign_accesspass_big'>" . PHP_EOL;
-            echo "<img id='secsign_accesspass_img' class='secsign_accesspass_img_big' src=\"data:image/png;base64," . $authsession->getIconData() . "\">" . PHP_EOL;
-            echo "</div>";
-            echo "<p style='text-align: center'>Please verify the access pass using your smartphone.</p>" . PHP_EOL;
-            echo "<div style='margin: 5px auto; text-align: center;'><div id='secsign_button_wrapper' style='display: inline-block;'>";
-            echo "<button type ='submit' name='" . $cancel_auth_button . "' value='1' style='margin: 5px 0;min-height:25px;'>Cancel</button>" . PHP_EOL;
-            echo "<button type ='submit' name='" . $check_auth_button . "' value='1' style='margin: 5px 0;min-height:25px;'>OK</button>" . PHP_EOL;
-            echo "</div></div>";
-            // end of form
-            echo "</form><div style='display:block;clear:both'></div>". PHP_EOL;
+			 	<input type='hidden' name='mapped_wp_user' value='{$mapped_user_str}' />
+
+	            <p style='text-align: center'>
+	            	<b>Access Pass for {$authsession->getSecSignID()}</b>
+	            </p>
+	            <div id='secsign_accesspass' class='secsign_accesspass_big'>
+    		        <img id='secsign_accesspass_img' class='secsign_accesspass_img_big' src="data:image/png;base64,{$authsession->getIconData()}">
+            	</div>
+	            <p style='text-align: center'>Please verify the access pass using your smartphone and choosing the right access pass.</p>
+            	<div style='margin: 5px auto; text-align: center;'>
+            		<div id='secsign_button_wrapper' style='display: inline-block;'>
+			            <button type ='submit' name='{$cancel_auth_button}' value='1' style='margin: 5px 0;min-height:25px;'>Cancel</button>
+    	    		    <button type ='submit' name='{$check_auth_button}' value='1' style='margin: 5px 0;min-height:25px;'>OK</button>
+	    	        </div>
+	    	    </div>
+            
+            </form>
+            <div style='display:block;clear:both'></div>
+ACCESSPASS_FORM;
+
             secsignid_login_hide_wp_login();
             secsignid_login_print_ajax_check($authsession);
 
-            echo '
+            echo <<<RESPONSIVE_JS
             <script type="text/javascript">
+				function responsive() {
+			        var width = document.getElementById("secsign_accesspass_form").offsetWidth;
+			        if(width<= 220){
+			            $("#secsign_accesspass_form button").css("width", "100%");
+            			$("#secsign_button_wrapper").css("width", "100%");
+			        } else {
+            			$("#secsign_accesspass_form button").css("width", "90px");
+			            $("#secsign_button_wrapper").css("width", "initial");
+        			}
 
-function responsive() {
-          var width = document.getElementById("secsign_accesspass_form").offsetWidth;
-        if(width<= 220){
-            $("#secsign_accesspass_form button").css("width", "100%");
-            $("#secsign_button_wrapper").css("width", "100%");
-        } else {
-            $("#secsign_accesspass_form button").css("width", "90px");
-            $("#secsign_button_wrapper").css("width", "initial");
-        }
+		    	    if(width<= 160){
+			            $("#secsign_accesspass").removeClass("secsign_accesspass_big");
+			            $("#secsign_accesspass").addClass("secsign_accesspass_small");
+            			$("#secsign_accesspass_img").removeClass("secsign_accesspass_img_big");
+			            $("#secsign_accesspass_img").addClass("secsign_accesspass_img_small");
+			        } else {
+            			$("#secsign_accesspass").removeClass("secsign_accesspass_small");
+			            $("#secsign_accesspass").addClass("secsign_accesspass_big");
+			            $("#secsign_accesspass_img").removeClass("secsign_accesspass_img_small");
+            			$("#secsign_accesspass_img").addClass("secsign_accesspass_img_big");
+        			}
+				}
+			
+				$(window).resize(function() {
+				  responsive();
+				});
+			
+				// call once to re-layout
+				responsive();
+			</script>
+RESPONSIVE_JS;
 
-        if(width<= 160){
-            $("#secsign_accesspass").removeClass("secsign_accesspass_big");
-            $("#secsign_accesspass").addClass("secsign_accesspass_small");
-            $("#secsign_accesspass_img").removeClass("secsign_accesspass_img_big");
-            $("#secsign_accesspass_img").addClass("secsign_accesspass_img_small");
-        } else {
-            $("#secsign_accesspass").removeClass("secsign_accesspass_small");
-            $("#secsign_accesspass").addClass("secsign_accesspass_big");
-            $("#secsign_accesspass_img").removeClass("secsign_accesspass_img_small");
-            $("#secsign_accesspass_img").addClass("secsign_accesspass_img_big");
-        }
-}
-$( window ).resize(function() {
-  responsive();
-});
-
-responsive();
-</script>
-
-
-            ';
         }
     }
     
@@ -1311,11 +1372,11 @@ responsive();
         {
             if ((strpos($_SERVER['REQUEST_URI'],'wp-login') !== false) && get_option('secsignid_show_on_login_page'))
             {
-            	echo "<script>";
-            	echo '$("#loginform").hide();';
-				echo '$("#nav").hide();';
-				echo '$("#login .message").hide();';
-				echo "</script>";
+            	echo '<script>
+						$("#loginform").hide();
+						$("#nav").hide();
+						$("#login .message").hide();
+					</script>';
             }
         }
     }
@@ -1330,57 +1391,73 @@ responsive();
         function secsignid_login_print_ajax_check($authsession)
         {
         	global $check_auth_button;
-            echo "<script type='text/javascript' src='". plugins_url( 'SecSignIDApi.js' , __FILE__ )  . "'></script>". PHP_EOL . "<script>";
-            echo "var timeTillAjaxSessionStateCheck = 3700; var checkSessionStateTimerId = -1;". PHP_EOL;
-            echo "function ajaxCheckForSessionState(){". PHP_EOL;  
-            echo "var secSignIDApi = new SecSignIDApi({'posturl' : '" . parse_url(plugins_url( 'signin-bridge.php' , __FILE__ ), PHP_URL_PATH) . "'});". PHP_EOL;
-			echo "secSignIDApi.getAuthSessionState(";
-			echo "'" .$authsession->getSecSignID() . "', '" . $authsession->getRequestID() ."', '". $authsession->getAuthSessionID() . "', ". PHP_EOL;
-$js = <<<VERBATIMJS
-function(responseMap){  
-if(responseMap){
-	// check if response map contains error message or if authentication state could not be fetched from server.
-	if("errormsg" in responseMap){
-    	return;
-    } else if(! ("authsessionstate" in responseMap)){
-    	return;
-	}
-	if(responseMap["authsessionstate"] == undefined || responseMap["authsessionstate"].length < 1){
-    	// got answer without an auth session state. this is not parsable and will throw the error UNKNOWN
-        return;
-    }
+        	$posturl = parse_url(plugins_url( 'signin-bridge.php' , __FILE__ ), PHP_URL_PATH);
+        	
+        	echo "<script type='text/javascript' src='". plugins_url( 'SecSignIDApi.js' , __FILE__ )  . "'></script>". PHP_EOL;
+        	echo <<<CHECKAUTHSESSION_JS
+            <script>
+            	var timeTillAjaxSessionStateCheck = 3700; 
+            	var checkSessionStateTimerId = -1;
+            	function ajaxCheckForSessionState(){
+            		if($("#secsign_button_wrapper button").attr("checking")){
+            			return;
+            		}
+            		$("#secsign_button_wrapper button").attr("checking", "1");
+            		
+            		var secSignIDApi = new SecSignIDApi({'posturl' : '{$posturl}'});
+            		secSignIDApi.getAuthSessionState('{$authsession->getSecSignID()}', 
+            										 '{$authsession->getRequestID()}', 
+            										 '{$authsession->getAuthSessionID()}',
+													 function(responseMap){
+													 	$("#secsign_button_wrapper button").removeAttr("checking");
+													 	
+														if(responseMap){
+															// check if response map contains error message or if authentication state could not be fetched from server.
+															if("errormsg" in responseMap){
+														    	return;
+    														} else if(! ("authsessionstate" in responseMap)){
+    															return;
+															}
+														
+															if(responseMap["authsessionstate"] == undefined || responseMap["authsessionstate"].length < 1){
+														    	// got answer without an auth session state. this is not parsable and will throw the error UNKNOWN
+														        return;
+														    }
                     
-    // everything okay. authentication state can be checked...
-    var authSessionStatus = parseInt(responseMap["authsessionstate"]);
-    var SESSION_STATE_NOSTATE = 0;
-    var SESSION_STATE_PENDING = 1;
-    var SESSION_STATE_EXPIRED = 2;
-    var SESSION_STATE_AUTHENTICATED = 3;
-    var SESSION_STATE_DENIED = 4;
-    var SESSION_STATE_SUSPENDED = 5;
-    var SESSION_STATE_CANCELED = 6;
-    var SESSION_STATE_FETCHED = 7;
-    var SESSION_STATE_INVALID = 8;
+    														// everything okay. authentication state can be checked...
+    														var authSessionStatus = parseInt(responseMap["authsessionstate"]);
+    														var SESSION_STATE_NOSTATE = 0;
+   															 var SESSION_STATE_PENDING = 1;
+    														var SESSION_STATE_EXPIRED = 2;
+    														var SESSION_STATE_AUTHENTICATED = 3;
+    														var SESSION_STATE_DENIED = 4;
+    														var SESSION_STATE_SUSPENDED = 5;
+    														var SESSION_STATE_CANCELED = 6;
+    														var SESSION_STATE_FETCHED = 7;
+    														var SESSION_STATE_INVALID = 8;
     
-    if((authSessionStatus == SESSION_STATE_AUTHENTICATED) || (authSessionStatus == SESSION_STATE_DENIED) || (authSessionStatus == SESSION_STATE_EXPIRED)
-    || (authSessionStatus == SESSION_STATE_SUSPENDED) || (authSessionStatus == SESSION_STATE_INVALID) || (authSessionStatus == SESSION_STATE_CANCELED)){
-    	window.clearInterval(checkSessionStateTimerId);
-VERBATIMJS;
-			echo $js . PHP_EOL;
-            echo "$(\"button[name='". $check_auth_button ."']\").click();". PHP_EOL;
-            echo "}";
-            echo "}});";
-			echo "}";
-			echo "</script>";
-			
+    														if((authSessionStatus == SESSION_STATE_AUTHENTICATED) || (authSessionStatus == SESSION_STATE_DENIED) || (authSessionStatus == SESSION_STATE_EXPIRED)
+    														|| (authSessionStatus == SESSION_STATE_SUSPENDED) || (authSessionStatus == SESSION_STATE_INVALID) || (authSessionStatus == SESSION_STATE_CANCELED)){
+    															window.clearInterval(checkSessionStateTimerId);
+    															$("button[name='{$check_auth_button}']").click();
+    														}
+    													}
+    												});
+    			}
+    		</script>
+CHECKAUTHSESSION_JS;
+
 			if (strpos($_SERVER['REQUEST_URI'],'wp-login') === false) //we are not on the login page, so start the ajax request to check the session state
             {
-            	echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script><script>";
-            	echo "if(typeof ajaxCheckForSessionState == 'function')";
-				echo "{";
-				echo "	checkSessionStateTimerId = window.setInterval(function(){ajaxCheckForSessionState()}, timeTillAjaxSessionStateCheck);";
-				echo "}";
-				echo "</script>";
+            	echo <<<STARTCHECKAUTHSESSION_JS
+            			<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+            			<script>
+							if(typeof ajaxCheckForSessionState == 'function')
+							{
+								checkSessionStateTimerId = window.setInterval(function(){ajaxCheckForSessionState()}, timeTillAjaxSessionStateCheck);
+							}
+						</script>
+STARTCHECKAUTHSESSION_JS;
             } //else start it in the secsign_custom_login_form hook, because we are moving parts in the DOM tree around that would otherwise end in evaluating the js call two times
         }
     }

@@ -18,13 +18,18 @@ SecSign ID is a plugin for real two-factor authentication (2FA) for Wordpress si
 If you seek for more information about about two-factor authentication have a look at [https://www.secsign.com](https://www.secsign.com/two-factor-authentication/).
 
 
-* Integrate SecSign ID into your own WordPress site in less than one minute. (There are also APIs for PHP and Java.)
+* Integrate SecSign ID into your own WordPress site in less than one minute.
 * You and your users can also use SecSign ID to visit securely other web sites (e.g. [portal.secsign.com](https://portal.secsign.com) for truly professional messaging and cloud sharing.)
 * This service is free for users and web site owners and free of advertising - no matter how many users the web site has.
 * You can also integrate SecSign ID as in-house solution into your existing infrastructure (on request with licensed service and maintenance contract)
 
 
 [youtube http://www.youtube.com/watch?v=DNjrbEuMB7Y]
+
+
+There are also APIs for PHP, Ruby, Perl, Python and Java as well as plugins and modules for Joomla and Drupal.
+A complete overview about available plugins and APIs can be found at [https://www.secsign.com/plugins/](https://www.secsign.com/plugins/).
+
 
 SecSign ID features:
 
@@ -128,6 +133,12 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.4 =
+* When login is started buttons are disabled and the login form is submitted programmatically to prevent multiple submits (in safari and Chrome).
+* When checking the authentication session the buttons are disabled to prevent multiple submits.
+* When printing the html code the heredoc notation is used for better readability.
+* Added new version of SecSign ID PHP API [GitHub](https://github.com/SecSign/secsign-php-api)
 
 = 1.3 =
 * Differ between error message and user formatted message in function print_error(...)
