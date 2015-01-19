@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.4
+Version: 1.4.1
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.7 2015/01/07 09:17:24 jwollner Exp $
+// $Id: secsignid_login.php,v 1.8 2015/01/19 15:45:44 titus Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -1072,6 +1072,17 @@ INTERIM_LOGIN;
 			</style>
 
 			<script type="text/javascript">
+				function checkSecSignIdInput() {
+        	        var secsignid = document.forms['secsignid_loginform'].secsignid.value;
+    	            if (secsignid == undefined || secsignid.length < 1) {
+	                    alert("No SecSign ID specified. Please enter a valid SecSign ID.");
+	                    
+	                    document.forms['secsignid_loginform'].secsignid.focus();
+                    	return false;
+                	}
+                	return true;
+            	}
+            
 				function handleSecSignIdLoginButtons() {
     	        	document.getElementById('secsignid_login').disabled=true;
             	
@@ -1089,7 +1100,7 @@ INTERIM_LOGIN;
 		            <button type ='submit' 
 		            		id='secsignid_login' 
 		            		name='secsignid_login' 
-		            		onclick='return handleSecSignIdLoginButtons();' 
+		            		onclick='if(checkSecSignIdInput()){return handleSecSignIdLoginButtons();} return false;' 
 		            		class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>
 		            <div style='clear:both;'></div>
 		        </div>

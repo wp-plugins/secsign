@@ -134,6 +134,9 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 
 == Changelog ==
 
+= 1.4.1 =
+* Bug fixed when SecSign ID is checked whether it is null or not. The login form should not be submitted if the user hasn't entered a SecSign ID.
+
 = 1.4 =
 * When login is started buttons are disabled and the login form is submitted programmatically to prevent multiple submits (in safari and Chrome).
 * When checking the authentication session the buttons are disabled to prevent multiple submits.
@@ -155,7 +158,7 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 * Added descriptions.
 
 = 1.0.7 =
-* When SecSign ID plugin is enabled the focus is set to secsign id input field at wp-login.php.
+* When SecSign ID plugin is enabled the focus is set to SecSign ID input field at wp-login.php.
 * CSS corrections.
 * Added new screenshots for the description.
 
