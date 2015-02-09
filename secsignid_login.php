@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.4.1
+Version: 1.5
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.8 2015/01/19 15:45:44 titus Exp $
+// $Id: secsignid_login.php,v 1.12 2015/02/06 17:07:33 titus Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -20,8 +20,7 @@ Author URI: http://www.secsign.com
     include(WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/SecSignIDApi.php'); // include low-level interface to connector to SecSign ID Server
     
     // check if admin page is called
-    if(is_admin())
-    {
+    if(is_admin()){
         // this creates a submenu entry and adds options to wordpress database
         include( WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/secsignid_login_admin.php' );
     }
@@ -570,7 +569,8 @@ SECSIGNJS;
 							} else {
 								// general error
 								print_error("An error occured when requesting auth session: " . $e->getMessage(), 
-											"Did not get authentication session. Reload page and try again later.", 
+											//"Did not get authentication session. Reload page and try again later.", 
+											$e->getMessage(),
 											true);
 							}
 						}
@@ -1038,8 +1038,30 @@ INTERIM_LOGIN;
          */
         function print_login_form()
         {
-            $form_post_url = secsign_id_login_post_url();
-
+        	$button_color = get_option('secsignid_button_color');
+			if(empty($button_color)){
+				$button_color = "blue";
+			}
+			
+        	$login_button_class = $button_color;
+        	$signup_button_class = $button_color == "wp-theme" ? "" : "silver";
+            /*
+			$form_description =  "<a href='https://www.secsign.com/sign-up/' hreflang='en' target='_blank'><button type='button'
+		            		id='secsignid_info'
+		            		name='goto'
+							class='button button-primary button-large " . $signup_button_class . "'
+							value='signup'>Sign up</button></a>";
+			if(!get_option('secsignid_signup_button')){
+				$form_description = "<div style='height:10px;clear:both;'></div><a href='https://www.secsign.com/sign-up/' hreflang='en' target='_blank'>New to SecSign?</a>";
+			}
+			else if(! is_front_page()){
+				$form_description = "<a href='https://www.secsign.com/sign-up/' hreflang='en' target='_blank'>New to SecSign?</a>";
+				$login_button_class = ""; // empty string means that the word press default is used
+			}*/
+			
+			$form_description = "<div style='height:10px;clear:both;'></div><p><a href='https://www.secsign.com/sign-up/' hreflang='en' target='_blank'>New to SecSign?</a></p><div style='height:10px;clear:both;'></div>";
+			$form_post_url = secsign_id_login_post_url();
+			
             echo <<<LOGIN_CSS_JS
 				
 				<style type='text/css'>
@@ -1069,6 +1091,59 @@ INTERIM_LOGIN;
         			.login .login_wrapper{
 				        padding: 20px;
         			}
+        			
+        			#secsignid_loginform button.silver,
+        			#secsignid_loginform button.blue {
+						display:block;
+						position:relative;
+
+						color:#333;
+						border-style:solid;
+						border-width:thin;
+						border-top-color: #BBB;
+						border-right-color:#BBB;
+						border-bottom-color:#CCC;
+						border-left-color:#BBB;
+						background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#e1e1e1));
+						background: -webkit-linear-gradient(top, #FFF, #e1e1e1);
+						background: -moz-linear-gradient(top,  #FFF,  #e1e1e1);
+						background: -o-linear-gradient(top, #FFF, #e1e1e1);
+						background: linear-gradient(to bottom, #FFF, #e1e1e1);
+
+						border-radius: 3px;
+						background-clip:padding-box;
+					}
+
+					#secsignid_loginform button.blue {
+						background: -webkit-gradient(linear, left top, left bottom, from(#7eb5ff), to(#0070b5));
+						background: -webkit-linear-gradient(top, #7eb5ff, #0070b5);
+						background: -moz-linear-gradient(top,  #7eb5ff,  #0070b5);
+						background: -o-linear-gradient(top, #7eb5ff, #0070b5);
+						background: linear-gradient(to bottom, #7eb5ff, #0070b5);
+
+						border:solid 1px #0070b5;
+						color:#FFF;
+					}
+
+					#secsignid_loginform button.silver:hover {
+						background: -webkit-gradient(linear, left top, left bottom, from(#efefef), to(#fff));
+						background: -webkit-linear-gradient(top, #efefef, #fff);
+						background: -moz-linear-gradient(top,  #efefef,  #fff);
+						background: -o-linear-gradient(top, #efefef, #fff);
+						background: linear-gradient(to bottom, #efefef, #fff);
+						box-shadow:0px 0px 4px 1px rgba(0, 51, 102, 0.3);
+						cursor:pointer;
+					}
+
+					#secsignid_loginform button.blue:hover {
+						background: -webkit-gradient(linear, left top, left bottom, from(#85b9ff), to(#02639f));
+						background: -webkit-linear-gradient(top, #85b9ff, #02639f);
+						background: -moz-linear-gradient(top,  #85b9ff,  #02639f);
+						background: -o-linear-gradient(top, #85b9ff, #02639f);
+						background: linear-gradient(to bottom, #85b9ff, #02639f);
+						box-shadow:0px 0px 6px 1px rgba(0, 51, 102, 0.4);
+						cursor:pointer;
+					}
 			</style>
 
 			<script type="text/javascript">
@@ -1101,8 +1176,9 @@ INTERIM_LOGIN;
 		            		id='secsignid_login' 
 		            		name='secsignid_login' 
 		            		onclick='if(checkSecSignIdInput()){return handleSecSignIdLoginButtons();} return false;' 
-		            		class='button button-primary button-large'>Log In</button><a href='https://www.secsign.com/sign-up/' target='_blank'>New to SecSign?</a>
-		            <div style='clear:both;'></div>
+		            		class='button button-primary button-large {$login_button_class}'>Log In</button>
+		            {$form_description}
+		            <p>More information about the advantages of our two-factor authentication at <a href='https://www.secsign.com' target='_blank'>secsign.com</a></p>
 		        </div>
             </form>
 LOGIN_CSS_JS;
@@ -1254,9 +1330,59 @@ ACCOUNT_ASSIGNMENT;
 			
            	echo <<<ACCESSPASS_CSS
 				<style type='text/css'>
-					#secsign_accesspass_form button{
-				        width:90px;
-    				}
+					#secsign_accesspass_form button {
+				        
+						display:block;
+						position:relative;
+						width:90px;
+						
+						border-radius: 3px;
+						background-clip:padding-box;
+					}
+					
+					#secsign_accesspass_form button.blue {
+						color:#FFF;
+						background: -webkit-gradient(linear, left top, left bottom, from(#7eb5ff), to(#0070b5));
+						background: -webkit-linear-gradient(top, #7eb5ff, #0070b5);
+						background: -moz-linear-gradient(top,  #7eb5ff,  #0070b5);
+						background: -o-linear-gradient(top, #7eb5ff, #0070b5);
+						background: linear-gradient(to bottom, #7eb5ff, #0070b5);
+
+						border:solid 1px #0070b5;
+					}
+					#secsign_accesspass_form button.silver {
+						color:#333;
+						border-style:solid;
+						border-width:thin;
+						border-top-color: #BBB;
+						border-right-color:#BBB;
+						border-bottom-color:#CCC;
+						border-left-color:#BBB;
+						background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#e1e1e1));
+						background: -webkit-linear-gradient(top, #FFF, #e1e1e1);
+						background: -moz-linear-gradient(top,  #FFF,  #e1e1e1);
+						background: -o-linear-gradient(top, #FFF, #e1e1e1);
+						background: linear-gradient(to bottom, #FFF, #e1e1e1);
+					}
+					#secsign_accesspass_form button.blue:hover {
+						background: -webkit-gradient(linear, left top, left bottom, from(#85b9ff), to(#02639f));
+						background: -webkit-linear-gradient(top, #85b9ff, #02639f);
+						background: -moz-linear-gradient(top,  #85b9ff,  #02639f);
+						background: -o-linear-gradient(top, #85b9ff, #02639f);
+						background: linear-gradient(to bottom, #85b9ff, #02639f);
+						box-shadow:0px 0px 6px 1px rgba(0, 51, 102, 0.4);
+						cursor:pointer;
+					}
+					#secsign_accesspass_form button.silver:hover {
+						background: -webkit-gradient(linear, left top, left bottom, from(#efefef), to(#fff));
+						background: -webkit-linear-gradient(top, #efefef, #fff);
+						background: -moz-linear-gradient(top,  #efefef,  #fff);
+						background: -o-linear-gradient(top, #efefef, #fff);
+						background: linear-gradient(to bottom, #efefef, #fff);
+						box-shadow:0px 0px 4px 1px rgba(0, 51, 102, 0.3);
+
+						cursor:pointer;
+					}
 
     				.secsign_accesspass_big {
    		 				display:block;
@@ -1273,6 +1399,9 @@ ACCOUNT_ASSIGNMENT;
     					background: white;
     					width:100%;
     					margin:0px auto;
+    					-webkit-box-shadow: none;
+						-moz-box-shadow: none;
+    					box-shadow:none;
     				}
 
     				.secsign_accesspass_img_big{
@@ -1281,7 +1410,9 @@ ACCOUNT_ASSIGNMENT;
     					height:80px;
     					left:35px;
     					top:90px;
-    					box-shadow:0px 0px 0px #FFF;
+    					-webkit-box-shadow: none;
+						-moz-box-shadow: none;
+    					box-shadow:none;
     				}
 
     				.secsign_accesspass_img_small{
@@ -1300,6 +1431,14 @@ ACCESSPASS_CSS;
             $form_post_url = secsign_id_login_post_url();
 			$mapped_user = get_wp_user($authsession->getSecSignID());
 			$mapped_user_str = ($mapped_user != null ? $mapped_user->user_login : "null");
+			
+			$button_color = get_option('secsignid_button_color');
+			if(empty($button_color)){
+				$button_color = "blue";
+			}
+			
+        	$check_button_class = $button_color == "wp-theme" ? "" : $button_color;
+        	$cancel_button_class = $button_color == "wp-theme" ? "" : "silver";
 			
 			// show access pass and print all information which is need to verify auth session
 			// all information which is need to get auth session status if user hit 'OK' button are put into hidden fields                    
@@ -1320,13 +1459,13 @@ ACCESSPASS_CSS;
 	            	<b>Access Pass for {$authsession->getSecSignID()}</b>
 	            </p>
 	            <div id='secsign_accesspass' class='secsign_accesspass_big'>
-    		        <img id='secsign_accesspass_img' class='secsign_accesspass_img_big' src="data:image/png;base64,{$authsession->getIconData()}">
+    		        <img id='secsign_accesspass_img' class='secsign_accesspass_img_big' style='box-shadow:none' src="data:image/png;base64,{$authsession->getIconData()}">
             	</div>
 	            <p style='text-align: center'>Please verify the access pass using your smartphone and choosing the right access pass.</p>
             	<div style='margin: 5px auto; text-align: center;'>
-            		<div id='secsign_button_wrapper' style='display: inline-block;'>
-			            <button type ='submit' name='{$cancel_auth_button}' value='1' style='margin: 5px 0;min-height:25px;'>Cancel</button>
-    	    		    <button type ='submit' name='{$check_auth_button}' value='1' style='margin: 5px 0;min-height:25px;'>OK</button>
+            		<div id='secsign_button_wrapper' style='display: inline-block;margin: 5px auto; text-align: center;'>
+			            <button type ='submit' name='{$cancel_auth_button}' class='{$cancel_button_class}' value='1' style='margin:5px 10px 5px 0px;min-height:25px;float:left;'>Cancel</button>
+    	    		    <button type ='submit' name='{$check_auth_button}' class='{$check_button_class}' value='1' style='margin:5px 0px 5px 10px;min-height:25px;float:right;'>OK</button>
 	    	        </div>
 	    	    </div>
             
@@ -1368,6 +1507,9 @@ ACCESSPASS_FORM;
 			
 				// call once to re-layout
 				responsive();
+				
+				// jump to access pass
+				$('html, body').animate({scrollTop: $('#secsign_accesspass_form').offset().top}, "slow", "swing");
 			</script>
 RESPONSIVE_JS;
 

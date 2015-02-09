@@ -1,6 +1,6 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.1 2014/12/01 14:33:28 titus Exp $
+// $Id: secsignid_login_admin.php,v 1.3 2015/02/06 16:59:45 titus Exp $
 
     // for all hooks, see http://adambrown.info/p/wp_hooks
     
@@ -22,7 +22,9 @@
     global $secsignid_login_plugin_name;
     global $secsignid_login_options;
     
-    // define options
+    // define options. 
+    // @see http://codex.wordpress.org/Administration_Menus
+    // @see http://codex.wordpress.org/Creating_Options_Pages
     $secsignid_login_options = (
                                   array(
                                         // a section per array
@@ -35,9 +37,23 @@
                                                           'default' => site_url(), 
                                                           'label'   => __('Service address', $secsignid_login_text_domain),  
                                                           'desc'	=> __('The service address is displayed during authentication on the smartphone of the user. It should match the URL of your WordPress site.', $secsignid_login_text_domain)
-                                                          //'desc'	=> __('The service address is displayed during authentication on the smartphone of the user.', $secsignid_login_text_domain),
                                                           //'editable' => false
-                                                          )
+                                                          ),
+                                                    array(
+                                                          'name'    => 'secsignid_button_color', 
+                                                          'label'   => __('Button color', $secsignid_login_text_domain),  
+                                                          'desc'	=> __('The button color specifies the look and feel at the SecSign ID plugin at the frontpage.', $secsignid_login_text_domain),
+                                                          'type' 	=> 'select',
+                                                          'values' 	=> array('blue', 'silver', 'wp-theme'),
+                                                          'value_descr' => array('SecSign Blue', 'Silver', 'Wordpress Theme Color')
+                                                          )/*,
+                                                    array(
+                                                          'name'    => 'secsignid_signup_button', 
+                                                          'default' => 1,
+                                                          'label'   => __('Show sign up button', $secsignid_login_text_domain),  
+                                                          'desc'	=> __('Display a sign up button to guide users to the tutorial how to <a href="https://www.secsign.com/sign-up/" target=_blank title="SecSign ID: how to sign up">sign up</a> for SecSign ID.', $secsignid_login_text_domain),
+                                                          'type' 	=> 'checkbox'
+                                                          )*/
                                                     )
                                               ),
                                         // next section
@@ -180,7 +196,7 @@
 			settings_fields($secsignid_login_plugin_name);
 		
 			// print options
-			for($x=0;$x<count($secsignid_login_options);$x++)
+			for($x=0; $x < count($secsignid_login_options); $x++)
 			{
 				$section = $secsignid_login_options[$x];
 			
@@ -226,6 +242,41 @@
 						echo $html;
 				
 					}
+					else if('select' === $option['type'])
+					{
+						echo '<select id="' . $option['name'] . '" name="' . $option['name'] . '" size="1" style="width:25em">';
+						
+						$values = $option['values'];
+						$value_descr = $option['value_descr'];
+						if($value_descr == null){
+							$value_descr = $values;
+						}
+						$curval = get_option($option['name']);
+						if(empty($curval)){
+							$curval = $values[0];
+						}
+						
+						//foreach($values as $v){
+						for($kk=0; $kk < count($values); $kk++){
+							
+							$v = $values[$kk];
+							$v_desc = $value_descr[$kk];
+							
+							// check if description is empty. in that case just use the value
+							if(empty($v_desc)){
+								$v_desc = $v;
+							}
+							
+							$sel = ($v == $curval);
+							if($sel){
+								echo '<option selected value="' . $v . '">' . $v_desc . '</option>';
+							} else {
+								echo '<option value="' . $v . '">' . $v_desc . '</option>';
+							}
+						}
+						
+						echo '</select>';
+					}
 					else //TextField
 					{
 						$editablestring = ((isset($option['editable']) && $option['editable'] === false) ? "readonly" : "");
@@ -240,7 +291,6 @@
 					echo "</td></tr>" . PHP_EOL;
 				}
 				echo "</table>" . PHP_EOL;
-			
 			}
 			
 ?>

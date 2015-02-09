@@ -43,7 +43,7 @@ Technical details (only for experts):
 
 * Up to 2048-bit asymmetric private keys
 * Brute force resistant private key storage (SafeKey mechanism)
-* Private keys are never transmitted to the authentication server
+* Private keys are never transmitted to the authentication server (the SecSign ID server)
 * High availability through redundant remote failover servers
 * Multi-tier high security architecture with multiple firewalls and protocol filters
 
@@ -67,8 +67,10 @@ We have a noticeable background of more than 16 years in developing strong crypt
 
 Visit our official site to get the app and more information: [https://www.secsign.com](https://www.secsign.com)
 
-
 and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
+
+
+For more detailed information about two-factor-authentication (2FA) or two-step-authentication please have a look at the [SecSign blog entry about 2FA](https://www.secsign.com/two-factor-authentication-vs-two-step-verification/).
 
 == Installation ==
 
@@ -80,7 +82,7 @@ and check out our [flyer](https://www.secsign.com/secsign_portal_flyer.pdf).
 
 = Note =
 
-The SecSign ID WordPress plugin uses the [SecSign ID API](https://github.com/SecSign/secsign-php-api). The API requests from the ID server a so-called access pass (a session and a pass icon) which must be confirmed on the smartphone. In order to enable the plugin to establish a connection to the ID server, the curl packet (http://php.net/manual/de/book.curl.php) must be installed for PHP, and the web server on which the WordPress site is running must be able to reach the ID server under https://httpapi.secsign.com. Otherwise, you have to make changes in the settings for firewall and/or proxy.
+The SecSign ID WordPress plugin uses the [SecSign ID API](https://github.com/SecSign/secsign-php-api). The API requests from the SecSign ID server a so-called access pass (a session and a pass icon) which must be confirmed on the smartphone. In order to enable the plugin to establish a connection to the SecSign ID server, the curl packet (http://php.net/manual/de/book.curl.php) must be installed for PHP, and the web server on which the WordPress site is running must be able to reach the SecSign ID server under https://httpapi.secsign.com. Otherwise, you have to make changes in the settings for firewall and/or proxy.
 
 = Add the Login Widget =
 
@@ -110,6 +112,10 @@ The SecSign ID WordPress plugin uses the [SecSign ID API](https://github.com/Sec
 
 [youtube http://www.youtube.com/watch?v=utphj_m6jd4]
 
+= Tutorial =
+
+See (https://www.secsign.com/wordpress-tutorial/)
+
 == Frequently Asked Questions ==
 
 = How can users assign a SecSign ID to their WordPress account? =
@@ -133,6 +139,13 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.5 =
+* Use brand color for buttons.
+* The button color can be adjusted in options page.
+* Scroll page to shown access pass in case the plugin is embedded at the end of a page.
+* Bug fixed: corrected error messages sent by SecSign ID Server.
+* CSS corrections.
 
 = 1.4.1 =
 * Bug fixed when SecSign ID is checked whether it is null or not. The login form should not be submitted if the user hasn't entered a SecSign ID.
