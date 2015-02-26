@@ -15,7 +15,7 @@ SecSign ID - The mobile way to log into web sites
 
 
 SecSign ID is a plugin for real two-factor authentication (2FA) for Wordpress sites. 2FA adds another layer of security to your website by using a second token. In this case the physical token is your smartphone. 
-If you seek for more information about about two-factor authentication have a look at [https://www.secsign.com](https://www.secsign.com/two-factor-authentication/).
+If you seek for more information about about two-factor authentication have a look at [secsign.com](https://www.secsign.com/two-factor-authentication/).
 
 
 * Integrate SecSign ID into your own WordPress site in less than one minute.
@@ -28,7 +28,7 @@ If you seek for more information about about two-factor authentication have a lo
 
 
 There are also APIs for PHP, Ruby, Perl, Python and Java as well as plugins and modules for Joomla and Drupal.
-A complete overview about available plugins and APIs can be found at [https://www.secsign.com/plugins/](https://www.secsign.com/plugins/).
+A complete overview about available plugins and APIs can be found at [secsign.com/plugins/](https://www.secsign.com/plugins/).
 
 
 SecSign ID features:
@@ -47,7 +47,7 @@ Technical details (only for experts):
 * High availability through redundant remote failover servers
 * Multi-tier high security architecture with multiple firewalls and protocol filters
 
-More information at [https://www.secsign.com](https://www.secsign.com/security-id/).
+More information at [secsign.com](https://www.secsign.com/security-id/).
 
 SecSign ID in action:
 
@@ -139,6 +139,10 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.6 =
+* Show messages at backend login page e.g. when the authentication session is still pending
+* Bug fixed: use the existing div #login_error to display errors at backend login page
 
 = 1.5 =
 * Use brand color for buttons.

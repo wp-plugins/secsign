@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.5
+Version: 1.6
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.12 2015/02/06 17:07:33 titus Exp $
+// $Id: secsignid_login.php,v 1.14 2015/02/26 15:35:08 titus Exp $
 
     global $secsignid_login_text_domain;
     global $secsignid_login_plugin_name;
@@ -438,8 +438,7 @@ SECSIGNJS;
 						}
 						if( !empty($messages))
 						{
-							echo "<p class='message'>" . apply_filters('login_messages', $messages) . "</p>\n";
-							echo "<br />";
+							echo "<p class='message'>" . apply_filters('login_messages', $messages) . "</p>\n<br>";
 						}
 					}
 					print_wpuser_mapping_form();
@@ -471,7 +470,7 @@ SECSIGNJS;
 						
 							if(($secsignid_login_auth_session_status == AuthSession::PENDING) || ($secsignid_login_auth_session_status == AuthSession::FETCHED))
 							{
-								print_check_accesspass($authsession);
+								print_check_accesspass($authsession, $secsignid_login_auth_session_status);
 							}
 							else
 							{
@@ -541,7 +540,7 @@ SECSIGNJS;
 							// got auth session
 							if(isset($authsession)) {                            
 								// prints a html-table with the access pass
-								print_check_accesspass($authsession);                        
+								print_check_accesspass($authsession, -1);
 							} else {
 								print_error("Server sent empty auth session.", 
 											"Did not get authentication session. Reload page and try again later.", 
@@ -935,23 +934,24 @@ INTERIM_LOGIN;
          */
         function secsign_id_login_post_url()
         {
-            if (strncmp(get_site_url(), "https", 5)== 0) $prot = "https";
+            if(strncmp(get_site_url(), "https", 5) == 0){
+            	$prot = "https";
+            }
             else $prot = "http";
             
-            $post_url = $_SERVER['REQUEST_URI'];
+            $redirect_url = ""; // is modified in function secsign_id_login_remove_all_url_params()
+            $post_url = secsign_id_login_remove_all_url_params($_SERVER['REQUEST_URI'], $redirect_url);
             
-            $post_url = secsign_id_login_remove_all_url_params($post_url, $redirect_url);
-            if (!empty($redirect_url))
-            {
+            if (!empty($redirect_url)){
             	session_start();
-            	$_SESSION['redirect_to']=urldecode($redirect_url);
+            	$_SESSION['redirect_to'] = urldecode($redirect_url);
             }
             
-            if (strcmp($post_url,"")==0) $post_url = "/";
-            
-            $port = ":" . $_SERVER['SERVER_PORT'];
-            
-            return $prot . "://" . $_SERVER['SERVER_NAME'] . $port . $post_url;
+            if (strcmp($post_url, "") == 0){
+            	$post_url = "/";
+            }
+
+            return $prot . "://" . $_SERVER['SERVER_NAME'] . ":" . $_SERVER['SERVER_PORT'] . $post_url;
         }
     }
     
@@ -1319,7 +1319,7 @@ ACCOUNT_ASSIGNMENT;
          * @param AuthSession $authsession the authentication session including the access pass
          * @throws Exception
          */
-        function print_check_accesspass($authsession)
+        function print_check_accesspass($authsession, $authsession_state)
         {
             if(!isset($authsession) || !($authsession instanceof AuthSession))
             {
@@ -1422,8 +1422,9 @@ ACCOUNT_ASSIGNMENT;
 				</style>
 ACCESSPASS_CSS;
 
-//            if secsign_accesspass_form < 300
-
+			if(($authsession_state == AuthSession::PENDING) || ($authsession_state == AuthSession::FETCHED)){
+				print_message('Authentication Session is still pending. Please accept the correct access pass on your smartphone.');
+			}
         
             global $check_auth_button;
             global $cancel_auth_button;
@@ -1658,12 +1659,41 @@ STARTCHECKAUTHSESSION_JS;
 	        	error_log($error, 0);
 	        }
 	        
-            echo '<div class="login_error">' . apply_filters('login_errors', $msg) . '</div>' . PHP_EOL;
+            echo '<div id="login_error"><strong>Error: </strong>' . apply_filters('login_errors', $msg) . '</div>' . PHP_EOL;
 
             if($print_login_form){
                 echo '<br />';
                 print_login_form();
             }
+        }
+    }
+    
+    if(! (function_exists('print_message')))
+    {
+        /**
+         * prints out a message
+         *
+         * @param string $msg the messsage
+         */
+        function print_message($msg, $warning=false)
+        {
+        	if($msg == null){
+        		return;
+        	}
+        	if(is_front_page()){
+        		echo '<p>' . $msg . '</p>';
+        	} else {
+	        	if($warning){
+    	    		// use a darker yellow as left border color
+        			echo '<div class="updated" style="border-left:4px solid #FFF700;background-color:#fff;padding:12px;box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);">';
+        			
+        			// or use existing wordpress update div: #update-nag
+        		} else {
+            		echo '<div class="updated" style="border-left:4px solid #4EA813;background-color:#fff;padding:12px;box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.13);">';
+	            }
+    	    	echo $msg;
+        		echo '</div><br>' . PHP_EOL;
+        	}
         }
     }
     
