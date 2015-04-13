@@ -1,6 +1,6 @@
 <?php
 
-// $Id: secsignid_login_db.php,v 1.1 2014/12/01 14:33:28 titus Exp $
+// $Id: secsignid_login_db.php,v 1.2 2015/04/08 13:27:39 titus Exp $
     
     add_action('plugins_loaded', 'check_database_table'); // wordpress calls this function whenever plugins are loaded
     
@@ -314,5 +314,33 @@
                           );
         }
     }
+
+
+if(! function_exists('get_mapping_error'))
+{
+    /**
+     *
+     */
+    function get_mapping_error()
+    {
+        global $wpdb;
+        $options_table_name = $wpdb->prefix . "options";
+        $secsign_table_name = get_database_table_name();
+
+        //check if secsignid_show_on_login_page is enabled
+        $page = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM ".$options_table_name." where option_name = %s;", "secsignid_show_on_login_page"));
+
+        if($page != 1){
+            $users = $wpdb->get_var($wpdb->prepare("SELECT COUNT(allow_password_login) FROM ".$secsign_table_name." where allow_password_login = %d;", 0));
+            return $users;
+        }
+
+       return false;
+    }
+}
+
+
+
+
 
 ?>

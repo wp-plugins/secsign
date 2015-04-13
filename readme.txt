@@ -140,6 +140,22 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 
 == Changelog ==
 
+= 1.7.1 = 
+* Brute force prevention at fast registration form 
+* Added warning for interfering admin plugin setting
+* New version of SecSignIDApi.js (see [GitHub](https://github.com/SecSign/secsign-js-api) )
+* Improved error messages and properly clear javascript timer intervals
+* Bug fixed: disable submit button as long as username and password field is empty.
+* Bug fixed: adapt regexes in php and javascript to accept SecSign IDs with a dot
+* Bug fixed: if login fails refer to page where user tried to login with its SecSign ID
+
+= 1.7 = 
+* Improved plugin design with more use of javascript and SecSign Javascript Api to prevent page reloads and increase speed 
+* New version of SecSignIDApi.js (see [GitHub](https://github.com/SecSign/secsign-js-api) )
+* Updated user configuration options 
+* Bugfixes and path changes 
+* Layout and plugin structure updates
+
 = 1.6 =
 * Show messages at backend login page e.g. when the authentication session is still pending
 * Bug fixed: use the existing div #login_error to display errors at backend login page
