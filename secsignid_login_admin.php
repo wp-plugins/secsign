@@ -1,6 +1,6 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.8 2015/04/13 13:00:04 titus Exp $
+// $Id: secsignid_login_admin.php,v 1.10 2015/04/21 12:28:55 titus Exp $
 
 // for all hooks, see http://adambrown.info/p/wp_hooks
 
@@ -178,6 +178,15 @@ if (!(function_exists('secsignid_login_options_page'))) {
         if (!isset($_REQUEST['settings-updated'])) {
             $_REQUEST['settings-updated'] = false;
         }
+        
+        $submit_btn_counter = 0;
+        $save_changes_button_str = "<p class='submit'>" . PHP_EOL . 
+        	"<input type='submit' id='submit-btn' name='submit' class='button-primary' value='" . 
+        	//_e('Save Changes'). // <- this will echo the translation therefor it must be called as a function and not echo
+        	_('Save Changes'). // <- this will echo the translation therefor it must be called as a function and not echo
+        	"' onclick='return check_secsignid_mappings()'/>" . PHP_EOL .
+        	//echo "'/>" . PHP_EOL;
+			"</p>" . PHP_EOL;
 
         // print header
         echo "<div class='wrap'>" . PHP_EOL;
@@ -191,9 +200,12 @@ if (!(function_exists('secsignid_login_options_page'))) {
         // print options
         for ($x = 0; $x < count($secsignid_login_options); $x++) {
             $section = $secsignid_login_options[$x];
-
+			$printed_user_table = false;
+			
             //print horizontal line
-            if ($x > 0) echo "</br><hr></br>" . PHP_EOL;
+            if ($x > 0) {
+            	echo "<br><hr><br>" . PHP_EOL;
+            }
 
             //print section title
             if ($section[0]) {
@@ -217,6 +229,8 @@ if (!(function_exists('secsignid_login_options_page'))) {
                     if ($option['desc']) {
                         echo "<br /><br /><span class='description'>" . $option['desc'] . "</span>" . PHP_EOL;
                     }
+                    
+                    $printed_user_table = true;
                 } else if ('checkbox' === $option['type']) {
                     $checkbox_value = get_option($option['name']);
 
@@ -228,6 +242,7 @@ if (!(function_exists('secsignid_login_options_page'))) {
                     echo $html;
 
                 } else if ('select' === $option['type']) {
+                	// select box
                     echo '<select id="' . $option['name'] . '" name="' . $option['name'] . '" size="1" style="width:25em">';
 
                     $values = $option['values'];
@@ -260,8 +275,8 @@ if (!(function_exists('secsignid_login_options_page'))) {
                     }
 
                     echo '</select>';
-                } else //TextField
-                {
+                } else {
+                	 // TextField
                     $editablestring = ((isset($option['editable']) && $option['editable'] === false) ? "readonly" : "");
 
                     // print input text field
@@ -274,6 +289,12 @@ if (!(function_exists('secsignid_login_options_page'))) {
                 echo "</td></tr>" . PHP_EOL;
             }
             echo "</table>" . PHP_EOL;
+            
+            
+        	// print submit button, 'insert' value of counter to keep id unique
+			echo str_replace("submit-btn", "submit-btn-{$submit_btn_counter}", $save_changes_button_str);
+			$submit_btn_counter++;
+			$printed_user_table = false;
         }
 
         ?>
@@ -325,14 +346,6 @@ if (!(function_exists('secsignid_login_options_page'))) {
 
         <?php
 
-        //print submit button
-        echo "<p class='submit'>" . PHP_EOL;
-        echo "<input type='submit' id='submit' name='submit' class='button-primary' value='";
-        _e('Save Changes'); // <- this will echo the translation therefor it must be called as a function and not echo
-        echo "' onclick='return check_secsignid_mappings()'/>" . PHP_EOL;
-        //echo "'/>" . PHP_EOL;
-        echo "</p>" . PHP_EOL;
-
         echo "</form>" . PHP_EOL;
         echo "</div>" . PHP_EOL;
     }
@@ -377,7 +390,7 @@ if (!function_exists('get_secsignid_mapping_table')) {
 
         $mapping_array = get_user_mappings();
 
-        $user_table = "<table>" . PHP_EOL . "<th><b>" . __('Wordpress User', $secsignid_login_text_domain) . "</b></th><th><b>" . __('SecSign ID', $secsignid_login_text_domain) . "</b></th><th style='width:250px'><b>" . __('Deactivate Password Login', $secsignid_login_text_domain) . "</b></th>" . PHP_EOL;
+        $user_table = "<table>" . PHP_EOL . "<tr><th><b>" . __('Wordpress User', $secsignid_login_text_domain) . "</b></th><th><b>" . __('SecSign ID', $secsignid_login_text_domain) . "</b></th><th style='width:250px'><b>" . __('Deactivate Password Login', $secsignid_login_text_domain) . "</b></th></tr>" . PHP_EOL;
         foreach ($wp_user_array as $wpu) {
             // start table row and cols
             $user_table .= "<tr>" . PHP_EOL;

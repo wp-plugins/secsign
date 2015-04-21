@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.7.1
+Version: 1.7.2
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.20 2015/04/13 15:23:42 titus Exp $
+// $Id: secsignid_login.php,v 1.21 2015/04/21 12:29:18 titus Exp $
 
 global $secsignid_login_text_domain;
 global $secsignid_login_plugin_name;
@@ -85,9 +85,11 @@ if (!(function_exists('secsign_print_parameters'))) {
     function secsign_print_parameters()
     {
         $plugin_path = plugin_dir_url(__FILE__);
+        $wp_site_url = get_site_url();
         echo '<script>
             //Parameters
             var url = "";
+            var siteurl = "' . $wp_site_url . '";
             var title = "' . addslashes(get_option('secsignid_service_name')) . '";
             var secsignPluginPath = "' .addslashes($plugin_path) . '";
             var apiurl = secsignPluginPath+"/signin-bridge.php";
@@ -98,7 +100,8 @@ if (!(function_exists('secsign_print_parameters'))) {
             var frameoption = "' . addslashes(get_option('secsignid_frame')) . '";
 
             if (url == "") {
-                url = document.URL;
+                //url = document.URL;
+                url = "' . $wp_site_url . '";
             }
             if (title == "") {
                 title = document.title;
