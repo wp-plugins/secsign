@@ -1,4 +1,4 @@
-// $Id: secsignfunctions.js,v 1.5 2015/04/13 13:01:12 titus Exp $
+// $Id: secsignfunctions.js,v 1.6 2015/04/22 12:26:52 titus Exp $
  
 /*!
  * This script contains general helper functions.
@@ -8,6 +8,9 @@
  * @license        GNU General Public License version 2 or later; see LICENSE.txt.
  */
 jQuery.noConflict();
+
+//enable SecSign Login forms if JS is enabled
+jQuery("#secsignidplugin").css("display", "block");
 
 jQuery(document).ready(function() {
     jQuery('#secsignidplugin').css('display', 'block');
@@ -225,8 +228,6 @@ jQuery.getScript(secsignPluginPath + "SecSignIDApi.js", function () {
     }
 
     jQuery(document).ready(function (event) {
-        //enable SecSign Login forms if JS is enabled
-        jQuery("#secsignidplugin").css("display", "block");
 
         clearSecsignForm();
 

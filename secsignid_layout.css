@@ -1,6 +1,6 @@
 /**
  
-// $Id: secsignid_layout.css,v 1.4 2015/04/09 16:41:39 titus Exp $
+// $Id: secsignid_layout.css,v 1.6 2015/04/23 15:42:22 titus Exp $
 
 */
  
@@ -42,6 +42,10 @@ Blue: #599fcb
     outline: none;
 }
 
+#secsignidplugin label, #secsignidplugincontainer p{
+    color: #000;
+}
+
 #secsignidplugin .secsignidlogo, noscript .secsignidlogo {
     background: url(images/secsignidlogo.png) no-repeat top left;
     width: 170px;
@@ -80,7 +84,7 @@ Blue: #599fcb
     color: rgb(52, 52, 52);
 }
 
-#noscriptbtn, #secsignidplugin #secloginbtn, #secsignidplugin #seclogoutbtn, #secsignidplugin #pwdloginbtn, #secsignidplugin #secsignidapp1, #secsignidplugin #secsignidapp2, #secsignidplugin #wp-submit {
+#noscriptbtn, #secsignidplugin #secloginbtn, #secsignidplugin #seclogoutbtn, #secsignidplugin #pwdloginbtn, #secsignidplugin #pwdcreateaccount, #secsignidplugin #secsignidapp1, #secsignidplugin #secsignidapp2, #secsignidplugin #wp-submit {
     padding: 0;
     margin: 0;
     display: block;
@@ -315,6 +319,7 @@ Blue: #599fcb
     border-radius: 5px;
     border: 2px solid rgba(253, 152, 152, 1);
     display: none;
+    color: #000;
 }
 
 #secsignidplugin #secsignid-reg-error{

@@ -2,13 +2,13 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.7.2
+Version: 1.7.3
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
 
-// $Id: secsignid_login.php,v 1.21 2015/04/21 12:29:18 titus Exp $
+// $Id: secsignid_login.php,v 1.24 2015/04/27 15:11:15 titus Exp $
 
 global $secsignid_login_text_domain;
 global $secsignid_login_plugin_name;
@@ -16,13 +16,13 @@ global $secsignid_login_plugin_name;
 $secsignid_login_text_domain = "secsign";
 $secsignid_login_plugin_name = "secsign";
 
-include(WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/secsignid_login_db.php');
-include(WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/SecSignIDApi.php'); // include low-level interface to connector to SecSign ID Server
+include(plugin_dir_path(__FILE__) . 'secsignid_login_db.php');
+include(plugin_dir_path(__FILE__) . 'SecSignIDApi.php'); // include low-level interface to connector to SecSign ID Server
 
 // check if admin page is called
 if (is_admin()) {
     // this creates a submenu entry and adds options to wordpress database
-    include(WP_PLUGIN_DIR . '/' . $secsignid_login_plugin_name . '/secsignid_login_admin.php');
+    include(plugin_dir_path(__FILE__) . 'secsignid_login_admin.php');
 }
 
 //buttons
@@ -50,7 +50,24 @@ add_action('init', 'secsign_id_check_ticket', 0); //checks state of the session 
 add_action('clear_auth_cookie', 'secsign_id_unset_cookie', 5); //unsets the secsign id cookie
 add_filter('authenticate', 'secsign_id_check_login', 100, 3); //high priority, so it will be called last, and can disallow password based authentication
 add_action('login_footer', 'secsign_custom_login_form', 0); //custom login form
-add_action('wp_login_failed', 'secsign_front_end_pw_login_fail');  // hook failed login
+add_action('wp_login_failed', 'secsign_front_end_pw_login_fail'); // hook failed login
+add_filter('wp_enqueue_scripts', 'enqueue_secsign_scripts', 0 ); //enqueue all js scripts at website
+add_filter('login_enqueue_scripts', 'enqueue_secsign_scripts'); //enqueue all js scripts at admin dashboard
+
+
+if (!(function_exists('enqueue_secsign_scripts'))) {
+    /**
+     * enqueue all js scripts
+     */
+    function enqueue_secsign_scripts()
+    {
+        secsign_print_parameters();
+        wp_register_script('SecSignIDApi', plugins_url('/SecSignIDApi.js', __FILE__), array('jquery'));
+        wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'), false, true);
+        wp_enqueue_script('SecSignIDApi');
+        wp_enqueue_script('secsignfunctions');
+    }
+}
 
 
 if (!(function_exists('secsign_front_end_pw_login_fail'))) {
@@ -129,7 +146,7 @@ if (!(function_exists('secsign_custom_login_form'))) {
 
 						// switch order of normal login fields and the secsign id block
 						if(jQuery("#login .message").length > 0){
-							jQuery("#secsignid-login").insertBefore($("#login .message"));
+							jQuery("#secsignid-login").insertBefore(jQuery("#login .message"));
 						} else {
 							jQuery("#secsignid-login").insertBefore(jQuery("#loginform"));
 						}
@@ -565,18 +582,13 @@ if (!(function_exists('secsign_id_login'))) {
             $plugin_path = plugin_dir_url(__FILE__);
 
             echo "<link rel='stylesheet' type='text/css' href='" . plugins_url('secsignid_layout.css', __FILE__) . "'></link>" . PHP_EOL;
-            secsign_print_parameters();
-            wp_register_script('SecSignIDApi', plugins_url('/SecSignIDApi.js', __FILE__), array('jquery'));
-            wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'));
-            wp_enqueue_script('SecSignIDApi');
-            wp_enqueue_script('secsignfunctions');
             $redirectAfterLogoutTo = site_url();
 
             echo '
                 <div id="secsignidplugincontainer">
                     <noscript>
                         <div class="secsignidlogo"></div>
-                        <p>Noscript</p>
+                        <p>It appears that your browser has JavaScript disabled. The SecSign ID login requires your browser to be JavaScript enabled.</p>
                         <a style="color: #fff; text-decoration: none;" id="noscriptbtn"
                            href="https://www.secsign.com/support/" target="_blank">SecSign Support</a>
                     </noscript>
@@ -979,11 +991,6 @@ if (!(function_exists('print_login_form'))) {
         $plugin_path = plugin_dir_url(__FILE__);
 
         echo "<link rel='stylesheet' type='text/css' href='" . plugins_url('secsignid_layout.css', __FILE__) . "'></link>" . PHP_EOL;
-        secsign_print_parameters();
-        wp_register_script('SecSignIDApi', plugins_url('/SecSignIDApi.js', __FILE__), array('jquery'));
-        wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'));
-        wp_enqueue_script('SecSignIDApi');
-        wp_enqueue_script('secsignfunctions');
 
         if ((strpos($_SERVER['REQUEST_URI'], 'wp-login') !== false) && get_option('secsignid_show_on_login_page')) {
             $return = admin_url();
@@ -1000,7 +1007,7 @@ if (!(function_exists('print_login_form'))) {
 <div id="secsignidplugincontainer">
         <noscript>
             <div class="secsignidlogo"></div>
-            <p>nojs</p>
+            <p>It appears that your browser has JavaScript disabled. The SecSign ID login requires your browser to be JavaScript enabled.</p>
             <a style="color: #fff; text-decoration: none;" id="noscriptbtn"
                href="https://www.secsign.com/support/" target="_blank">SecSign Support</a>
         </noscript>
@@ -1183,11 +1190,6 @@ if (!(function_exists('print_wpuser_mapping_form'))) {
         }
 
         echo "<link rel='stylesheet' type='text/css' href='" . plugins_url('secsignid_layout.css', __FILE__) . "'></link>" . PHP_EOL;
-        secsign_print_parameters();
-        wp_register_script('SecSignIDApi', plugins_url('/SecSignIDApi.js', __FILE__), array('jquery'));
-        wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'));
-        wp_enqueue_script('SecSignIDApi');
-        wp_enqueue_script('secsignfunctions');
         $form_post_url = secsign_id_login_post_url();
 
         echo '
@@ -1217,7 +1219,7 @@ if (!(function_exists('print_wpuser_mapping_form'))) {
                     <div class="form-group">
                         <input id="wp-username" name="wp-username" type="text" size="15" maxlength="30" class="form-control login-field" placeholder="Username">
                     </div>
-                    <button type="submit" name="newaccount" value="1" id="g">Create new account</button>
+                    <button type="submit" name="newaccount" value="1" id="pwdcreateaccount">Create new account</button>
                     <input type="hidden" name="secsignid" value="' . $secsignid . '" />
                 </form>
         ';
