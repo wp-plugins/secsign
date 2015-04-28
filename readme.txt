@@ -141,7 +141,8 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 == Changelog ==
 
 = 1.7.4 =
-* Fixed javascript error that affects website which use the SecSign ID plugin only at the admin backend
+* Fixed javascript error that affects websites which use the SecSign ID plugin only at the admin backend
+* Tested WP compatibility for Wordpress 4.2.1
 
 = 1.7.3 =
 * Fixed issue with js queue and improved css styles for specific templates
