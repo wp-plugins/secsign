@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, 2 factor authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
-Tested up to: 4.2
+Tested up to: 4.2.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -139,6 +139,9 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.7.4 =
+* Fixed javascript error that affects website which use the SecSign ID plugin only at the admin backend
 
 = 1.7.3 =
 * Fixed issue with js queue and improved css styles for specific templates
