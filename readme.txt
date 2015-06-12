@@ -130,7 +130,7 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 
 = How to restore your SecSign ID on a new smartphone? =
 
-In case you lose your phone or want to switch to a new one, you should write down the restoration code for your SecSign ID. You can find the code in the app: Click on Edit on the main screen, select your SecSign ID and click on Restoration settings.
+In the event that you lose your phone or want to switch to a new one, you should write down the restoration code for your SecSign ID. You can find the code in the app: Click on Edit on the main screen, select your SecSign ID and click on Restoration settings.
 
 You can restore your ID on a new phone by going to More -> Restore Identity.
 
