@@ -128,6 +128,12 @@ Alternatively, you can go to your profile page to assign a SecSign ID.
 
 Yes, it's free for the user and the WordPress admin - no matter how many users the site has. It's also free of advertising.
 
+= How to restore your SecSign ID on a new smartphone? =
+
+In case you lose your phone or want to switch to a new one, you should write down the restoration code for your SecSign ID. You can find the code in the app: Click on Edit on the main screen, select your SecSign ID and click on Restoration settings.
+
+You can restore your ID on a new phone by going to More -> Restore Identity.
+
 = I enabled the SecSign ID Plugin and locked myself out =
 
 Do the following steps in order to disable the SecSign ID WordPress login:
