@@ -2,13 +2,11 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.7.4
+Version: 1.7.5
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
 */
-
-// $Id: secsignid_login.php,v 1.25 2015/04/28 09:50:30 titus Exp $
 
 global $secsignid_login_text_domain;
 global $secsignid_login_plugin_name;
@@ -17,7 +15,7 @@ $secsignid_login_text_domain = "secsign";
 $secsignid_login_plugin_name = "secsign";
 
 include(plugin_dir_path(__FILE__) . 'secsignid_login_db.php');
-include(plugin_dir_path(__FILE__) . 'SecSignIDApi.php'); // include low-level interface to connector to SecSign ID Server
+include(plugin_dir_path(__FILE__) . 'jsApi/phpApi/SecSignIDApi.php'); // include low-level interface to connector to SecSign ID Server
 
 // check if admin page is called
 if (is_admin()) {
@@ -51,28 +49,26 @@ add_action('clear_auth_cookie', 'secsign_id_unset_cookie', 5); //unsets the secs
 add_filter('authenticate', 'secsign_id_check_login', 100, 3); //high priority, so it will be called last, and can disallow password based authentication
 add_action('login_footer', 'secsign_custom_login_form', 0); //custom login form
 add_action('wp_login_failed', 'secsign_front_end_pw_login_fail'); // hook failed login
-add_filter('wp_enqueue_scripts', 'enqueue_secsign_scripts', 0 ); //enqueue all js scripts at website
 add_filter('login_enqueue_scripts', 'enqueue_secsign_scripts'); //enqueue all js scripts at admin dashboard
 
 
 if (!(function_exists('enqueue_secsign_scripts'))) {
     /**
-     * enqueue all js scripts
+     * Enqueue all js scripts
      */
-    function enqueue_secsign_scripts()
-    {
-        secsign_print_parameters();
-        wp_register_script('SecSignIDApi', plugins_url('/SecSignIDApi.js', __FILE__), array('jquery'));
-        wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'), false, true);
-        wp_enqueue_script('SecSignIDApi');
-        wp_enqueue_script('secsignfunctions');
+    function enqueue_secsign_scripts() {
+            secsign_print_parameters();
+            wp_register_script('SecSignIDApi', plugins_url('/jsApi/SecSignIDApi.js', __FILE__), array('jquery'));
+            wp_register_script('secsignfunctions', plugins_url('/secsignfunctions.js', __FILE__), array('jquery'), false, true);
+            wp_enqueue_script('SecSignIDApi');
+            wp_enqueue_script('secsignfunctions');
     }
 }
 
 
 if (!(function_exists('secsign_front_end_pw_login_fail'))) {
     /**
-     * change referrer when frontend password login fails
+     * Change referrer when frontend password login fails
      */
     function secsign_front_end_pw_login_fail($username)
     {
@@ -109,7 +105,7 @@ if (!(function_exists('secsign_print_parameters'))) {
             var siteurl = "' . $wp_site_url . '";
             var title = "' . addslashes(get_option('secsignid_service_name')) . '";
             var secsignPluginPath = "' .addslashes($plugin_path) . '";
-            var apiurl = secsignPluginPath+"/signin-bridge.php";
+            var apiurl = secsignPluginPath + "jsApi/signin-bridge.php";
             var errormsg = "Your login session has expired, was canceled, or was denied.";
             var noresponse = "The authentication server sent no response or you are not connected to the internet.";
             var nosecsignid = "Invalid SecSignID.";
@@ -117,7 +113,6 @@ if (!(function_exists('secsign_print_parameters'))) {
             var frameoption = "' . addslashes(get_option('secsignid_frame')) . '";
 
             if (url == "") {
-                //url = document.URL;
                 url = "' . $wp_site_url . '";
             }
             if (title == "") {
@@ -174,7 +169,7 @@ SECSIGNJS;
 
 if (!(function_exists('secsign_id_check_login'))) {
     /**
-     * this hook will be called for every password based login
+     * This hook will be called for every password based login
      *
      * @param null|WP_USER|WP_Error $user null indicates no process has authenticated the user yet.
      *                                    A WP_Error object indicates another process has failed the authentication.
@@ -208,7 +203,7 @@ if (!(function_exists('secsign_id_check_login'))) {
 
 if (!(function_exists('check_session_for_bruteforce'))) {
     /**
-     * the function will check a counter in session. if the counter exceeds a maximum, the session is destroyd to prevent brute force attacks.
+     * The function will check a counter in session. if the counter exceeds a maximum, the session is destroyd to prevent brute force attacks.
      */
     function check_session_for_bruteforce()
     {
@@ -238,9 +233,9 @@ if (!(function_exists('check_session_for_bruteforce'))) {
 
 if (!(function_exists('secsign_id_init'))) {
     /**
-     * init function which is hooked to wordpress init action.
-     * the init function declares this php script to a widget which can be used in wordpress.
-     * the overriden function widget() calls secsign_id_login($args);
+     * Init function which is hooked to wordpress init action.
+     * The init function declares this php script to a widget which can be used in wordpress.
+     * The overriden function widget() calls secsign_id_login($args);
      */
     function secsign_id_init()
     {
@@ -273,8 +268,8 @@ if (!(function_exists('secsign_id_init'))) {
 
 if (!(function_exists('secsign_id_init_auth_cookie_check'))) {
     /**
-     * init function which is hooked to wordpress init action.
-     * used to check if this login is legit or not
+     * Init function which is hooked to wordpress init action.
+     * Used to check if this login is legit or not
      * on multisites you can otherwise bypass the authentication and use the password-based one even if deactivated
      */
     function secsign_id_init_auth_cookie_check()
@@ -298,7 +293,7 @@ if (!(function_exists('secsign_id_init_auth_cookie_check'))) {
 
 if (!(function_exists('secsign_id_get_random_secret'))) {
     /**
-     * gets a random secret from the db or creates it if not available
+     * Gets a random secret from the db or creates it if not available
      * @return string returns the random secret to sign the auth cookie
      */
     function secsign_id_get_random_secret()
@@ -318,7 +313,7 @@ if (!(function_exists('secsign_id_get_random_secret'))) {
 
 if (!(function_exists('secsign_id_verify_cookie'))) {
     /**
-     * verifies a user cookie
+     * Verifies a user cookie
      * @param string $username the user's username
      * @return bool returns true if the auth cookie is ok, or false if something is wrong
      */
@@ -367,7 +362,7 @@ if (!(function_exists('secsign_id_verify_cookie'))) {
 
 if (!(function_exists('secsign_id_set_cookie'))) {
     /**
-     * sets a secsign id auth cookie, which proves that the login was done with this plugin
+     * Sets a secsign id auth cookie, which proves that the login was done with this plugin
      * @param string $username the user's username
      */
     function secsign_id_set_cookie($username)
@@ -395,7 +390,7 @@ if (!(function_exists('secsign_id_set_cookie'))) {
 
 if (!(function_exists('secsign_id_unset_cookie'))) {
     /**
-     * unsets the secsign id auth cookie
+     * Unsets the secsign id auth cookie
      */
     function secsign_id_unset_cookie()
     {
@@ -578,6 +573,8 @@ if (!(function_exists('secsign_id_login'))) {
         } else {
             // user is logged in, show logout screen
 
+            enqueue_secsign_scripts();
+
             $form_post_url = secsign_id_login_post_url();
             $plugin_path = plugin_dir_url(__FILE__);
 
@@ -627,14 +624,14 @@ INTERIM_LOGIN;
 
 if (!(function_exists('secsign_id_check_ticket'))) {
     /**
-     * the actual login process.
-     * the function is hooked to init action of wordpress.
-     * for this reason this method is called before the widget rendering function.
+     * The actual login process.
+     * The function is hooked to init action of wordpress.
+     * For this reason this method is called before the widget rendering function.
      *
-     * all post parameter are available and a possible auth session can be checked if its status is AUTHENTICATED.
-     * the auth session status is saved in a global variable $secsignid_login_auth_session_status
+     * All post parameter are available and a possible auth session can be checked if its status is AUTHENTICATED.
+     * The auth session status is saved in a global variable $secsignid_login_auth_session_status
      *
-     * if the auth session status is authenticated, the user will be logged in.
+     * If the auth session status is authenticated, the user will be logged in.
      * otherwise the function just will end without any effects.
      */
     function secsign_id_check_ticket()
@@ -832,8 +829,13 @@ if (!(function_exists('secsign_id_check_ticket'))) {
                 if ($secsignid_login_auth_session_status == AuthSession::AUTHENTICATED) {
                     //save to the session, that the secsign id was authenticated. This will later allow the assignment to/creation of a wordpress user
                     $_SESSION['authenticated'] = $_POST['secsigniduserid'];
+
                     // release authentication session. it is not used any more
-                    $secSignIDApi->releaseAuthSession($authsession);
+                    try {
+                        $secSignIDApi->releaseAuthSession($authsession);
+                    } catch(Exception $e){
+                        //do nothing if the authentication session cannot be released, proceed with user login
+                    }
 
                     $user_to_login = get_wp_user($_POST['secsigniduserid']);
                     if ($user_to_login) {
@@ -888,7 +890,7 @@ if (!(function_exists('secsign_id_check_ticket'))) {
 
 if (!(function_exists('secsign_id_login_post_url'))) {
     /**
-     * builds an url which is used for all html forms to post data to.
+     * Builds an url which is used for all html forms to post data to.
      */
     function secsign_id_login_post_url()
     {
@@ -914,7 +916,7 @@ if (!(function_exists('secsign_id_login_post_url'))) {
 
 if (!(function_exists('secsign_id_login_remove_all_url_params'))) {
     /**
-     * removes all not needed parameter (loggedout, reauth, action) from a url path
+     * Removes all not needed parameter (loggedout, reauth, action) from a url path
      * the second parameter is optional and returns the redirect_to value by reference if available
      * Example: secsign_id_login_remove_url_param('/wp-login-php?para1=1&para2=2')
      *  -> '/wp-login-php'
@@ -968,8 +970,7 @@ if (!(function_exists('secsign_id_login_remove_all_url_params'))) {
 
 if (!(function_exists('get_secsignid_server_instance'))) {
     /**
-     * creates an instance of the SecSignIDApi and returns it.
-     *
+     * Creates an instance of the SecSignIDApi and returns it.
      * @return SecSignIDApi the SecSign ID server API
      */
     function get_secsignid_server_instance()
@@ -983,10 +984,12 @@ if (!(function_exists('get_secsignid_server_instance'))) {
 
 if (!(function_exists('print_login_form'))) {
     /**
-     * prints out the actual login form
+     * Prints out the actual login form.
      */
     function print_login_form()
     {
+        enqueue_secsign_scripts();
+
         $form_post_url = secsign_id_login_post_url();
         $plugin_path = plugin_dir_url(__FILE__);
 
@@ -1177,7 +1180,7 @@ LOGIN_FORMS2;
 
 if (!(function_exists('print_wpuser_mapping_form'))) {
     /**
-     * prints out the WP User mapping login form
+     * Prints out the WP User mapping login form. This happens if the given secsign id is not mapped to a wordpress user and self enrollment is enabled.
      */
     function print_wpuser_mapping_form()
     {
@@ -1255,7 +1258,7 @@ if (!(function_exists('print_wpuser_mapping_form'))) {
 
 if (!function_exists('secsignid_login_hide_wp_login')) {
     /**
-     * prints jQuery code to hide the normal password based login, when using the secsign id login
+     * Prints jQuery code to hide the normal password based login, when using the secsign id login.
      */
     function secsignid_login_hide_wp_login()
     {
@@ -1274,7 +1277,7 @@ if (!function_exists('secsignid_login_hide_wp_login')) {
 
 if (!function_exists('add_error')) {
     /**
-     * check if the global variable error is set and is an instance of WP_Error.
+     * Check if the global variable error is set and is an instance of WP_Error.
      * If not the function creates a new WP_Error instance and assignes it to global variable $errors.
      * After that the given error message is added to WP_Error instance.
      *
@@ -1297,8 +1300,7 @@ if (!function_exists('add_error')) {
 
 if (!(function_exists('print_error'))) {
     /**
-     * prints out an error
-     *
+     * Prints out an error as message
      * @param string $error an error message
      * @param BOOL $print_login_form Optional. if true, it prints the login form
      */
@@ -1321,8 +1323,7 @@ if (!(function_exists('print_error'))) {
 
 if (!(function_exists('print_message'))) {
     /**
-     * prints out a message
-     *
+     * Prints out a message.
      * @param string $msg the messsage
      */
     function print_message($msg, $warning = false)
@@ -1349,7 +1350,7 @@ if (!(function_exists('print_message'))) {
 
 if (!(function_exists('get_plugin_version'))) {
     /**
-     * Gets the version of this plugin. It propably costs some time to parse the plugin file. But it is better to hve another variable to keep updated.
+     * Gets the version of this plugin. It probably costs some time to parse the plugin file. But this is better than haveing another variable which needs to be updated as well.
      */
     function get_plugin_version()
     {

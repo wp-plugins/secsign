@@ -43,17 +43,17 @@ jQuery('#secsignidplugin').find('#user_pass').on('input', function() {
 
 //responsive layout
 window.onload = function () {
-	var secsignidplugin = document.getElementById("secsignidplugin");
-	if(secsignidplugin){
-    	responsive(secsignidplugin.offsetWidth);
+    var secsignidplugin = document.getElementById("secsignidplugin");
+    if(secsignidplugin != null){
+        responsive(secsignidplugin.offsetWidth);
     }
     frameOption(frameoption, backend);
 };
 
 window.addEventListener('resize', function () {
     var secsignidplugin = document.getElementById("secsignidplugin");
-	if(secsignidplugin){
-    	responsive(secsignidplugin.offsetWidth);
+    if(secsignidplugin != null){
+        responsive(secsignidplugin.offsetWidth);
     }
 });
 
@@ -135,7 +135,7 @@ var docCookies = {
 };
 
 //Load SecSignID API
-jQuery.getScript(secsignPluginPath + "SecSignIDApi.js", function () {
+jQuery.getScript(secsignPluginPath + "jsApi/SecSignIDApi.js", function () {
 
     //Polling
     var timeTillAjaxSessionStateCheck = 3700;
