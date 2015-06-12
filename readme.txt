@@ -128,6 +128,16 @@ Alternatively, you can go to your profile page to assign a SecSign ID.
 
 Yes, it's free for the user and the WordPress admin - no matter how many users the site has. It's also free of advertising.
 
+= I enabled the SecSign ID Plugin and locked myself out =
+
+Do the following steps in order to disable the SecSign ID WordPress login:
+
+1. Open your WordPress directory via (S)FTP and rename the folder wp-content/plugins/secsign to secsign1.
+2. Reload the backend login page and login with your WordPress username and password.
+3. Important: Immediately rename the folder back to secsign.
+4. The SecSign ID WordPress Plugin is now deactivated. Click on “Plugins” in the main menu, look for “SecSign” and activate it.
+5. Adjust options in the SecSign ID settings.
+
 == Screenshots ==
 
 1. This is the login form in which you enter your SecSign ID shown in the smartphone app.
@@ -144,6 +154,8 @@ Yes, it's free for the user and the WordPress admin - no matter how many users t
 * New version of [SecSignIDApi.js](https://github.com/SecSign/secsign-js-api) and [SecSignIDApi.php](https://github.com/SecSign/secsign-php-api)
 * Fixed error which could interfere with some rules in Apache .htaccess
 * Tested WP compatibility for Wordpress 4.2.2
+
+Note: After the update, please flush the page cache.
 
 = 1.7.4 =
 * Fixed javascript error that affects websites which use the SecSign ID plugin only at the admin backend
