@@ -161,7 +161,7 @@ Do the following steps in order to disable the SecSign ID WordPress login:
 * Fixed error which could interfere with some rules in Apache .htaccess
 * Tested WP compatibility for Wordpress 4.2.2
 
-Note: After the update, please flush the page cache.
+Note: After the update, please flush the page cache. Or any other cache e.g. if you are using Wordpress plugins like 'W3 Total Cache' or 'Better WordPress Minify'.
 
 = 1.7.4 =
 * Fixed javascript error that affects websites which use the SecSign ID plugin only at the admin backend
