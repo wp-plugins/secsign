@@ -351,7 +351,9 @@ jQuery.getScript(secsignPluginPath + "jsApi/SecSignIDApi.js", function () {
 
                         //request auth session
                         var secsignid = jQuery("input[name='secsigniduserid']").val();
-                        var secSignIDApi = new SecSignIDApi({posturl: apiurl});
+                        var secSignIDApi = new SecSignIDApi({posturl: apiurl, pluginname: "wordpress"});
+                        // alert(JSON.stringify(secSignIDApi));
+                        	
                         secSignIDApi.requestAuthSession(secsignid, title, url, '', function rMap(responseMap) {
                             if ("errormsg" in responseMap) {
                                 //back to login screen

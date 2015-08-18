@@ -2,7 +2,7 @@
 Contributors: SecSign
 Tags: two-factor authentication, two-factor, authentication, 2 factor authentication, login, sign in, single sign-on, challenge response, rsa, password, mobile, iphone, android, security, authenticator, authenticate, two step authentication, 2fa
 Requires at least: 3.0.1
-Tested up to: 4.2.2
+Tested up to: 4.3
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -141,7 +141,7 @@ Do the following steps in order to disable the SecSign ID WordPress login:
 1. Open your WordPress directory via (S)FTP and rename the folder wp-content/plugins/secsign to secsign1.
 2. Reload the backend login page and login with your WordPress username and password.
 3. Important: Immediately rename the folder back to secsign.
-4. The SecSign ID WordPress Plugin is now deactivated. Click on “Plugins” in the main menu, look for “SecSign” and activate it.
+4. The SecSign ID WordPress Plugin is now deactivated. Click on "Plugins" in the main menu, look for "SecSign" and activate it.
 5. Adjust options in the SecSign ID settings.
 
 == Screenshots ==
@@ -149,12 +149,26 @@ Do the following steps in order to disable the SecSign ID WordPress login:
 1. This is the login form in which you enter your SecSign ID shown in the smartphone app.
 2. The access pass is requested.
 3. You will be shown an access pass. Tab on the matching one on your phone.
-4. If your SecSign ID is not associated with a WordPress username, you can assign the SecSign ID to an existing user.
-5. Or you can create a new account in Wordpress which is associated with your SecSign ID.
-6. The options for the SecSign ID plugin. You can choose a service name which is shown to a user on his or her smartphone and the assignments between a wordpress user and a SecSign ID.
-7. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
+4. The push notification for the login request at your phone
+5. The Touch ID authentication to get the access passes
+6. The access passes where you have to choose the correct one to login
+7. If your SecSign ID is not associated with a WordPress username, you can assign the SecSign ID to an existing user.
+8. Or you can create a new account in Wordpress which is associated with your SecSign ID.
+9. The options for the SecSign ID plugin. You can choose a service name which is shown to a user on his or her smartphone and the assignments between a wordpress user and a SecSign ID.
+10. The options for self enrollment whether a user can assign his or her SecSign ID by him- or herself and whether a user can create a new account.
 
 == Changelog ==
+
+= 1.7.6 =
+* Renamed function to fit naming conventions
+* Fixed missing plugin name in javascript function
+* Using new PHP5 constructors
+* CSS fix
+* Fixed Widget on WordPress 4.3
+* New version of [SecSignIDApi.js](https://github.com/SecSign/secsign-js-api) and [SecSignIDApi.php](https://github.com/SecSign/secsign-php-api) to be aible to login with your SecSign ID priority code
+* Minor changes in readme and new screenshots for the wordpress.org website
+
+Note: Due to changes at the javascript files, please flush the page cache or any other cache you are using to have the updated files within the browser.
 
 = 1.7.5 =
 * New version of [SecSignIDApi.js](https://github.com/SecSign/secsign-js-api) and [SecSignIDApi.php](https://github.com/SecSign/secsign-php-api)

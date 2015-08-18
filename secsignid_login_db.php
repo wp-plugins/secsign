@@ -1,8 +1,6 @@
 <?php
 
-// $Id: secsignid_login_db.php,v 1.2 2015/04/08 13:27:39 titus Exp $
-    
-    add_action('plugins_loaded', 'check_database_table'); // wordpress calls this function whenever plugins are loaded
+	add_action('plugins_loaded', 'check_database_table'); // wordpress calls this function whenever plugins are loaded
     
     if(! function_exists('check_database_table'))
     {

@@ -2,7 +2,7 @@
 /*
 Plugin Name: SecSign
 Plugin URI: https://www.secsign.com/add-it-to-your-website/
-Version: 1.7.5
+Version: 1.7.6
 Description: The plugin allows a user to login using a SecSign ID and his smartphone.
 Author: SecSign Technologies Inc.
 Author URI: http://www.secsign.com
@@ -44,7 +44,7 @@ $secsignid_login_secure_auth_cookie_name = 'secsign_id_wordpress_secure_cookie';
  */
 add_action('init', 'secsign_id_init_auth_cookie_check', 100); //checks the secsign id cookie
 add_action('init', 'secsign_id_init', 1); //widget init
-add_action('init', 'secsign_id_check_ticket', 0); //checks state of the session and does the login
+add_action('init', 'secsign_id_check_authsession', 0); //checks state of the session and does the login
 add_action('clear_auth_cookie', 'secsign_id_unset_cookie', 5); //unsets the secsign id cookie
 add_filter('authenticate', 'secsign_id_check_login', 100, 3); //high priority, so it will be called last, and can disallow password based authentication
 add_action('login_footer', 'secsign_custom_login_form', 0); //custom login form
@@ -244,25 +244,7 @@ if (!(function_exists('secsign_id_init'))) {
 
         // create widget class and hook widget initialization
         // @see http://codex.wordpress.org/Widgets_API
-        class SecSignIDLogin_Widget extends WP_Widget
-        {
-            // constructor
-            function SecSignIDLogin_Widget()
-            {
-                global $secsignid_login_text_domain;
-                $widget_ops = array('description' => __('SecSign ID Login.', $secsignid_login_text_domain));
-                $this->WP_Widget('wp_secsignidlogin', __('SecSign ID Login', $secsignid_login_text_domain), $widget_ops);
-            }
-
-            // this method is called whenever the widget shall be drawn
-            // redirect to method which decides whether the user is logged in or not
-            function widget($args, $instance)
-            {
-                secsign_id_login($args);
-            }
-        }
-
-        register_widget('SecSignIDLogin_Widget');
+        //moved to 1351 class SecSignIDLogin_Widget extends WP_Widget
     }
 }
 
@@ -501,7 +483,7 @@ if (!(function_exists('secsign_id_login'))) {
                     global $check_auth_button;
 
                     if (isset($_POST[$check_auth_button])) {
-                        //auth session status already checked in hooked method secsign_id_check_ticket()
+                        //auth session status already checked in hooked method secsign_id_check_authsession()
 
                         if (($secsignid_login_auth_session_status == AuthSession::PENDING) || ($secsignid_login_auth_session_status == AuthSession::FETCHED)) {
                             // print_check_accesspass($authsession, $secsignid_login_auth_session_status);
@@ -622,7 +604,7 @@ INTERIM_LOGIN;
     }
 }
 
-if (!(function_exists('secsign_id_check_ticket'))) {
+if (!(function_exists('secsign_id_check_authsession'))) {
     /**
      * The actual login process.
      * The function is hooked to init action of wordpress.
@@ -634,9 +616,11 @@ if (!(function_exists('secsign_id_check_ticket'))) {
      * If the auth session status is authenticated, the user will be logged in.
      * otherwise the function just will end without any effects.
      */
-    function secsign_id_check_ticket()
+    function secsign_id_check_authsession()
     {
+    	// start php session: http://www.w3schools.com/php/php_sessions.asp
         session_start();
+        
         if (isset($_POST['newaccount']) && get_option('secsignid_allow_account_creation') && isset($_SESSION['authenticated']) && ($_SESSION['authenticated'] == $_POST['secsignid'])) {
             if (!is_user_logged_in()) // no user is logged in
             {
@@ -1362,4 +1346,31 @@ if (!(function_exists('get_plugin_version'))) {
         return $plugin_data["Version"];
     }
 }
+
+
+class SecSignIDLogin_Widget extends WP_Widget
+{
+
+    // constructor
+    function __construct() {
+        global $secsignid_login_text_domain;
+        $widget_ops = array('description' => __('SecSign ID Login.', $secsignid_login_text_domain));
+        parent::__construct('wp_secsignidlogin', __('SecSign ID Login', $secsignid_login_text_domain), $widget_ops);
+    }
+
+    // this method is called whenever the widget shall be drawn
+    // redirect to method which decides whether the user is logged in or not
+    function widget($args, $instance)
+    {
+        secsign_id_login($args);
+    }
+
+}
+// register SecSignIDLogin_Widget widget
+function register_secsignidlogin_widget() {
+    register_widget('SecSignIDLogin_Widget');
+}
+add_action('widgets_init', 'register_secsignidlogin_widget');
+
+
 ?>

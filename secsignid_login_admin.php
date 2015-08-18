@@ -1,7 +1,5 @@
 <?php
 
-// $Id: secsignid_login_admin.php,v 1.10 2015/04/21 12:28:55 titus Exp $
-
 // for all hooks, see http://adambrown.info/p/wp_hooks
 
 add_action('admin_init', 'secsignid_login_options_init');
